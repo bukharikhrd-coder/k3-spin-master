@@ -305,6 +305,20 @@ function AdminPage() {
               onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, music: v } }))} suffix="%" />
             <Slider label="Effects volume" min={0} max={100} value={settings.sound.effects}
               onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, effects: v } }))} suffix="%" />
+
+            <h3 className="font-display text-lg font-bold pt-4">Sound Effects</h3>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={settings.sound.spinSfxEnabled}
+                onChange={(e) => setSettings((s) => ({ ...s, sound: { ...s.sound, spinSfxEnabled: e.target.checked } }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]" />
+              <span className="text-sm">Wheel ticking sound while spinning</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={settings.sound.winnerSfxEnabled}
+                onChange={(e) => setSettings((s) => ({ ...s, sound: { ...s.sound, winnerSfxEnabled: e.target.checked } }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]" />
+              <span className="text-sm">Fanfare sound when a winner is revealed</span>
+            </label>
           </section>
         )}
       </main>
