@@ -37,10 +37,10 @@ export function WinnerReveal({ winners, mode, open, onClose, titleText, congrats
             className="glass-strong relative w-full max-w-7xl rounded-3xl p-8 md:p-12"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-2 text-center text-sm font-semibold tracking-[0.4em] text-[var(--safety-yellow)]">
+            <div className="mb-2 text-center text-sm font-semibold tracking-[0.4em] text-[var(--safety-yellow)] whitespace-pre-line">
               {congratsText.toUpperCase()}
             </div>
-            <h2 className="mb-8 text-center font-display text-4xl md:text-6xl font-extrabold grad-text-gold text-glow-yellow">
+            <h2 className="mb-8 text-center font-display text-4xl md:text-6xl font-extrabold grad-text-gold text-glow-yellow whitespace-pre-line">
               {titleText}
             </h2>
 
