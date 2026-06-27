@@ -1,4 +1,5 @@
 import { DEFAULT_TEXTS, type LangMode, type TextKey } from "./i18n";
+import bgmAsset from "@/assets/grand-ceremony-overture.mp3.asset.json";
 
 export type WinnerDisplayMode =
   | "number"
@@ -14,41 +15,48 @@ export type DecorationKey =
 
 export interface AppSettings {
   lang: LangMode;
+  /**
+   * Overrides per language. Only "id" and "zh" slots are edited from the
+   * admin panel — combined modes (id_zh / zh_id) are derived from those two
+   * at render time. This keeps editing simple (two inputs, not four).
+   */
   texts: Partial<Record<LangMode, Partial<Record<TextKey, string>>>>;
   theme: {
-    primary: string;       // safety blue
-    accent: string;        // safety yellow
-    secondary: string;     // safety orange
-    background: string;    // base bg color
+    primary: string;
+    accent: string;
+    secondary: string;
+    background: string;
     glow: string;
   };
   background: {
-    preset: string;        // "industrial" | custom url
+    preset: string;
     customUrl?: string;
-    brightness: number;    // 0..200 (%)
-    blur: number;          // 0..30 (px)
-    overlayOpacity: number;// 0..100 (%)
-    zoom: number;          // 80..150 (%)
-    positionX: number;     // -50..50
-    positionY: number;     // -50..50
+    brightness: number;
+    blur: number;
+    overlayOpacity: number;
+    zoom: number;
+    positionX: number;
+    positionY: number;
   };
   logos: {
     company: { url: string | null; size: number; opacity: number };
     event:   { url: string | null; size: number; opacity: number };
   };
   wheel: {
-    spinDurationSec: number;       // 5..10
+    spinDurationSec: number;
     winnersPerRound: 1 | 5 | 10 | 15 | 20;
     displayMode: WinnerDisplayMode;
-    showNumbersOnly: boolean;      // auto when crowded
-    numbersOnlyThreshold: number;  // segment count
+    showNumbersOnly: boolean;
+    numbersOnlyThreshold: number;
   };
   sound: {
     muted: boolean;
-    master: number;   // 0..100
+    master: number;
     music: number;
     effects: number;
     bgmUrl: string | null;
+    spinSfxEnabled: boolean;
+    winnerSfxEnabled: boolean;
   };
   decorations: Record<DecorationKey, boolean>;
   animationSpeed: "slow" | "normal" | "fast";
@@ -87,7 +95,15 @@ export const DEFAULT_SETTINGS: AppSettings = {
     showNumbersOnly: true,
     numbersOnlyThreshold: 60,
   },
-  sound: { muted: false, master: 80, music: 50, effects: 90, bgmUrl: null },
+  sound: {
+    muted: false,
+    master: 80,
+    music: 50,
+    effects: 90,
+    bgmUrl: bgmAsset.url,
+    spinSfxEnabled: true,
+    winnerSfxEnabled: true,
+  },
   decorations: {
     gears: true, helmets: true, hazardStripes: true, apar: false,
     cones: false, smoke: true, dust: true, sparkles: true, stageLights: true,
@@ -98,10 +114,21 @@ export const DEFAULT_SETTINGS: AppSettings = {
   operator: "Admin",
 };
 
+/**
+ * Resolve a text key into the final string shown on screen.
+ * Editors only fill the "id" and "zh" slots; combined language modes
+ * concatenate those two with a newline so Indonesian is on top.
+ */
 export function resolveText(s: AppSettings, key: TextKey): string {
-  const override = s.texts?.[s.lang]?.[key];
-  if (override && override.trim()) return override;
-  return DEFAULT_TEXTS[s.lang][key];
+  const idText = (s.texts?.id?.[key]?.trim()) || DEFAULT_TEXTS.id[key];
+  const zhText = (s.texts?.zh?.[key]?.trim()) || DEFAULT_TEXTS.zh[key];
+  switch (s.lang) {
+    case "id":    return idText;
+    case "zh":    return zhText;
+    case "zh_id": return `${zhText}\n${idText}`;
+    case "id_zh":
+    default:      return `${idText}\n${zhText}`;
+  }
 }
 
 export const BACKGROUND_PRESETS = [
