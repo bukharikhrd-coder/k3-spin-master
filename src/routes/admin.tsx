@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Users, Trash2, Sparkles, Eye } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Users, Trash2, Sparkles, Eye, Upload, Volume2, VolumeX, Trash } from "lucide-react";
 import { useSettings } from "@/lib/settings-store";
 import { useParticipants } from "@/lib/participants-store";
 import { BACKGROUND_PRESETS } from "@/lib/settings-defaults";
@@ -18,13 +18,37 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
+type Tab = "general" | "participants" | "theme" | "text" | "wheel" | "sound";
+
 function AdminPage() {
   const { settings, setSettings, init: initSettings, t } = useSettings();
   const { participants, init: initParticipants, generate, remove, resetAll, refresh } = useParticipants();
-  const [tab, setTab] = useState<"general" | "participants" | "theme" | "text" | "wheel">("general");
+  const [tab, setTab] = useState<Tab>("general");
   const [genCount, setGenCount] = useState(200);
+  const bgmInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => { void initSettings(); void initParticipants(); }, [initSettings, initParticipants]);
+
+  async function handleBgmUpload(file: File) {
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Audio file too large. Max 8 MB recommended for fast sync across devices.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = () => reject(r.error);
+        r.readAsDataURL(file);
+      });
+      setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -37,7 +61,7 @@ function AdminPage() {
           <div className="text-xs text-muted-foreground">Auto-saved · {settings.lang.toUpperCase()}</div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 pb-2">
-          {(["general", "participants", "theme", "text", "wheel"] as const).map((id) => (
+          {(["general", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === id ? "bg-[var(--safety-yellow)] text-black" : "text-muted-foreground hover:bg-white/5"
@@ -46,6 +70,7 @@ function AdminPage() {
                 : id === "participants" ? t("admin_participants")
                 : id === "theme" ? t("admin_theme")
                 : id === "text" ? t("admin_text")
+                : id === "sound" ? t("admin_sound")
                 : "Wheel"}
             </button>
           ))}
@@ -209,6 +234,60 @@ function AdminPage() {
             <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-[var(--safety-yellow)] px-5 py-2 font-semibold text-black hover:brightness-110">
               <Eye className="h-4 w-4" /> View live draw
             </Link>
+          </section>
+        )}
+
+        {tab === "sound" && (
+          <section className="glass rounded-2xl p-6 space-y-5">
+            <h3 className="font-display text-lg font-bold">Background Music</h3>
+            <p className="text-xs text-muted-foreground">
+              Upload an MP3 / OGG / WAV file. It is stored in the cloud database and will play automatically on every device that opens this app. Keep the file under 8 MB for fast sync.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                ref={bgmInputRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleBgmUpload(f); e.currentTarget.value = ""; }}
+              />
+              <button
+                onClick={() => bgmInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-4 py-2 font-semibold text-black hover:brightness-110 disabled:opacity-60"
+              >
+                <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : (settings.sound.bgmUrl ? "Replace music" : "Upload music")}
+              </button>
+              {settings.sound.bgmUrl && (
+                <button
+                  onClick={() => { if (confirm("Remove background music?")) setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: null } })); }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-destructive/80 px-4 py-2 font-semibold hover:bg-destructive"
+                >
+                  <Trash className="h-4 w-4" /> Remove
+                </button>
+              )}
+              <button
+                onClick={() => setSettings((s) => ({ ...s, sound: { ...s.sound, muted: !s.sound.muted } }))}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 font-semibold hover:bg-white/10"
+              >
+                {settings.sound.muted ? <><VolumeX className="h-4 w-4" /> Unmute</> : <><Volume2 className="h-4 w-4" /> Mute</>}
+              </button>
+            </div>
+
+            {settings.sound.bgmUrl && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Preview:</div>
+                <audio src={settings.sound.bgmUrl} controls className="w-full max-w-md" />
+              </div>
+            )}
+
+            <Slider label="Master volume" min={0} max={100} value={settings.sound.master}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, master: v } }))} suffix="%" />
+            <Slider label="Music volume" min={0} max={100} value={settings.sound.music}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, music: v } }))} suffix="%" />
+            <Slider label="Effects volume" min={0} max={100} value={settings.sound.effects}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, effects: v } }))} suffix="%" />
           </section>
         )}
       </main>
