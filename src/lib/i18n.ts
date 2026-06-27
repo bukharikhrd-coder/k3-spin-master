@@ -94,13 +94,15 @@ const zh: Dict = {
   exit_fullscreen: "退出全屏",
 };
 
+// For combined modes we join Indo and Mandarin with a newline so the UI
+// renders Indonesian on top and Mandarin below (CSS: whitespace-pre-line).
 export const DEFAULT_TEXTS: Record<LangMode, Dict> = {
   id,
   zh,
   id_zh: Object.fromEntries(
-    (Object.keys(id) as TextKey[]).map((k) => [k, `${id[k]} / ${zh[k]}`])
+    (Object.keys(id) as TextKey[]).map((k) => [k, `${id[k]}\n${zh[k]}`])
   ) as Dict,
   zh_id: Object.fromEntries(
-    (Object.keys(id) as TextKey[]).map((k) => [k, `${zh[k]} / ${id[k]}`])
+    (Object.keys(id) as TextKey[]).map((k) => [k, `${id[k]}\n${zh[k]}`])
   ) as Dict,
 };
