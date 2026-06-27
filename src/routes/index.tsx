@@ -7,7 +7,7 @@ import { useParticipants, type Participant } from "@/lib/participants-store";
 import { SpinningWheel, type SpinningWheelHandle } from "@/components/wheel/SpinningWheel";
 import { WinnerReveal } from "@/components/WinnerReveal";
 import { HomeBackground } from "@/components/HomeBackground";
-import { fireCelebration } from "@/lib/celebration";
+import { fireCelebration, startSpinSfx, playWinnerSfx } from "@/lib/celebration";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -126,7 +126,16 @@ function Home() {
     if (winners.length === 0) return;
     setSpinning(true);
     setRevealOpen(false);
+    const stopTicks = settings.sound.spinSfxEnabled
+      ? startSpinSfx({
+          durationSec: settings.wheel.spinDurationSec,
+          master: settings.sound.master,
+          effects: settings.sound.effects,
+          muted: settings.sound.muted,
+        })
+      : () => {};
     await wheelRef.current?.spinTo(winners.map((w) => w.id), settings.wheel.spinDurationSec);
+    stopTicks();
     const ids = winners.map((w) => w.id);
     await supabase.from("participants").update({ has_won: true }).in("id", ids);
     await supabase.from("draw_history").insert({
@@ -137,6 +146,9 @@ function Home() {
     useSettings.getState().setSettings((s) => ({ ...s, currentRound: s.currentRound + 1 }));
     setRevealed(winners);
     setRevealOpen(true);
+    if (settings.sound.winnerSfxEnabled) {
+      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted });
+    }
     fireCelebration();
     setSpinning(false);
   }

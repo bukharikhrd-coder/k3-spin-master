@@ -49,6 +49,28 @@ async function pushToCloud(settings: AppSettings) {
   }
 }
 
+/**
+ * Strip heavy fields (e.g. base64 audio data URLs) before writing to
+ * localStorage — these can blow past the 5 MB browser quota. The cloud
+ * copy in Supabase keeps the full value.
+ */
+function toCacheable(s: AppSettings): AppSettings {
+  const bgm = s.sound?.bgmUrl;
+  if (bgm && bgm.startsWith("data:") && bgm.length > 200_000) {
+    return { ...s, sound: { ...s.sound, bgmUrl: null } };
+  }
+  return s;
+}
+
+function safeSetCache(s: AppSettings) {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(toCacheable(s)));
+  } catch {
+    try { localStorage.removeItem(CACHE_KEY); } catch {}
+  }
+}
+
 export const useSettings = create<State>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   loaded: false,
@@ -59,10 +81,7 @@ export const useSettings = create<State>((set, get) => ({
   setSettings: (updater) => {
     const next = updater(get().settings);
     set({ settings: next });
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(next));
-    }
-    // debounce push
+    safeSetCache(next);
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => pushToCloud(next), 400);
   },
@@ -88,9 +107,7 @@ export const useSettings = create<State>((set, get) => ({
       if (!error && data) {
         const merged = deepMerge(DEFAULT_SETTINGS, data.data ?? {});
         set({ settings: merged });
-        if (typeof localStorage !== "undefined") {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
-        }
+        safeSetCache(merged);
       }
     } catch {}
     set({ loaded: true });
@@ -106,9 +123,7 @@ export const useSettings = create<State>((set, get) => ({
           if (data) {
             const merged = deepMerge(DEFAULT_SETTINGS, data);
             set({ settings: merged });
-            if (typeof localStorage !== "undefined") {
-              localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
-            }
+            safeSetCache(merged);
           }
         },
       )
