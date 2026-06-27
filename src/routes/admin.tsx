@@ -189,19 +189,36 @@ function AdminPage() {
         )}
 
         {tab === "text" && (
-          <section className="glass rounded-2xl p-6 space-y-3">
-            <p className="text-sm text-muted-foreground">Override any visible text for the current language mode ({settings.lang}). Leave empty to use the default.</p>
+          <section className="glass rounded-2xl p-6 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Edit Indonesian and Mandarin once — the home page shows them stacked automatically
+              (Indonesian on top, Mandarin below) when the language mode is combined.
+              Leave a field empty to use the built-in default.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_1fr] gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <div>Key</div><div>Indonesian</div><div>Mandarin (中文)</div>
+            </div>
             {TEXT_KEYS.map((k) => (
-              <div key={k} className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-2 items-center">
+              <div key={k} className="grid grid-cols-1 md:grid-cols-[180px_1fr_1fr] gap-2 items-center">
                 <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{k}</label>
                 <input
-                  placeholder={DEFAULT_TEXTS[settings.lang][k as TextKey]}
-                  value={settings.texts?.[settings.lang]?.[k as TextKey] ?? ""}
+                  placeholder={DEFAULT_TEXTS.id[k as TextKey]}
+                  value={settings.texts?.id?.[k as TextKey] ?? ""}
                   onChange={(e) => setSettings((s) => ({
                     ...s,
-                    texts: { ...s.texts, [s.lang]: { ...(s.texts?.[s.lang] ?? {}), [k]: e.target.value } },
+                    texts: { ...s.texts, id: { ...(s.texts?.id ?? {}), [k]: e.target.value } },
                   }))}
                   className="rounded-lg bg-black/40 border border-white/15 px-3 py-2"
+                />
+                <input
+                  placeholder={DEFAULT_TEXTS.zh[k as TextKey]}
+                  value={settings.texts?.zh?.[k as TextKey] ?? ""}
+                  onChange={(e) => setSettings((s) => ({
+                    ...s,
+                    texts: { ...s.texts, zh: { ...(s.texts?.zh ?? {}), [k]: e.target.value } },
+                  }))}
+                  className="rounded-lg bg-black/40 border border-white/15 px-3 py-2"
+                  lang="zh"
                 />
               </div>
             ))}
