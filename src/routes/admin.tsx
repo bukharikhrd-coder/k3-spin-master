@@ -236,6 +236,60 @@ function AdminPage() {
             </Link>
           </section>
         )}
+
+        {tab === "sound" && (
+          <section className="glass rounded-2xl p-6 space-y-5">
+            <h3 className="font-display text-lg font-bold">Background Music</h3>
+            <p className="text-xs text-muted-foreground">
+              Upload an MP3 / OGG / WAV file. It is stored in the cloud database and will play automatically on every device that opens this app. Keep the file under 8 MB for fast sync.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                ref={bgmInputRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleBgmUpload(f); e.currentTarget.value = ""; }}
+              />
+              <button
+                onClick={() => bgmInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-4 py-2 font-semibold text-black hover:brightness-110 disabled:opacity-60"
+              >
+                <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : (settings.sound.bgmUrl ? "Replace music" : "Upload music")}
+              </button>
+              {settings.sound.bgmUrl && (
+                <button
+                  onClick={() => { if (confirm("Remove background music?")) setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: null } })); }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-destructive/80 px-4 py-2 font-semibold hover:bg-destructive"
+                >
+                  <Trash className="h-4 w-4" /> Remove
+                </button>
+              )}
+              <button
+                onClick={() => setSettings((s) => ({ ...s, sound: { ...s.sound, muted: !s.sound.muted } }))}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 font-semibold hover:bg-white/10"
+              >
+                {settings.sound.muted ? <><VolumeX className="h-4 w-4" /> Unmute</> : <><Volume2 className="h-4 w-4" /> Mute</>}
+              </button>
+            </div>
+
+            {settings.sound.bgmUrl && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Preview:</div>
+                <audio src={settings.sound.bgmUrl} controls className="w-full max-w-md" />
+              </div>
+            )}
+
+            <Slider label="Master volume" min={0} max={100} value={settings.sound.master}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, master: v } }))} suffix="%" />
+            <Slider label="Music volume" min={0} max={100} value={settings.sound.music}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, music: v } }))} suffix="%" />
+            <Slider label="Effects volume" min={0} max={100} value={settings.sound.effects}
+              onChange={(v) => setSettings((s) => ({ ...s, sound: { ...s.sound, effects: v } }))} suffix="%" />
+          </section>
+        )}
       </main>
     </div>
   );
