@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Users, Trash2, Sparkles, Eye } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Users, Trash2, Sparkles, Eye, Upload, Volume2, VolumeX, Trash } from "lucide-react";
 import { useSettings } from "@/lib/settings-store";
 import { useParticipants } from "@/lib/participants-store";
 import { BACKGROUND_PRESETS } from "@/lib/settings-defaults";
@@ -18,13 +18,37 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
+type Tab = "general" | "participants" | "theme" | "text" | "wheel" | "sound";
+
 function AdminPage() {
   const { settings, setSettings, init: initSettings, t } = useSettings();
   const { participants, init: initParticipants, generate, remove, resetAll, refresh } = useParticipants();
-  const [tab, setTab] = useState<"general" | "participants" | "theme" | "text" | "wheel">("general");
+  const [tab, setTab] = useState<Tab>("general");
   const [genCount, setGenCount] = useState(200);
+  const bgmInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => { void initSettings(); void initParticipants(); }, [initSettings, initParticipants]);
+
+  async function handleBgmUpload(file: File) {
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Audio file too large. Max 8 MB recommended for fast sync across devices.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = () => reject(r.error);
+        r.readAsDataURL(file);
+      });
+      setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -37,7 +61,7 @@ function AdminPage() {
           <div className="text-xs text-muted-foreground">Auto-saved · {settings.lang.toUpperCase()}</div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 pb-2">
-          {(["general", "participants", "theme", "text", "wheel"] as const).map((id) => (
+          {(["general", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === id ? "bg-[var(--safety-yellow)] text-black" : "text-muted-foreground hover:bg-white/5"
@@ -46,6 +70,7 @@ function AdminPage() {
                 : id === "participants" ? t("admin_participants")
                 : id === "theme" ? t("admin_theme")
                 : id === "text" ? t("admin_text")
+                : id === "sound" ? t("admin_sound")
                 : "Wheel"}
             </button>
           ))}
