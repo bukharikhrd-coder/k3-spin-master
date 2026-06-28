@@ -18,7 +18,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab = "general" | "participants" | "theme" | "text" | "wheel" | "sound";
+type Tab = "general" | "branding" | "participants" | "theme" | "text" | "wheel" | "sound";
 
 function AdminPage() {
   const { settings, setSettings, init: initSettings, t } = useSettings();
