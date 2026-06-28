@@ -122,9 +122,16 @@ export const DEFAULT_SETTINGS: AppSettings = {
     winnerSfxEnabled: true,
   },
   decorations: {
-    gears: true, helmets: true, hazardStripes: true, apar: false,
-    cones: false, smoke: true, dust: true, sparkles: true, stageLights: true,
+    gears: true, helmets: true, hazardStripes: true, apar: true,
+    cones: true, smoke: true, dust: true, sparkles: true, stageLights: true,
+    shield: true, trophy: true, confetti: true,
   },
+  ornaments: [
+    { id: "orn1", label: "Ornamen 1", url: null, position: "tl", size: 120, opacity: 100, enabled: true },
+    { id: "orn2", label: "Ornamen 2", url: null, position: "tr", size: 120, opacity: 100, enabled: true },
+    { id: "orn3", label: "Ornamen 3", url: null, position: "bl", size: 120, opacity: 100, enabled: true },
+    { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
+  ],
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,
