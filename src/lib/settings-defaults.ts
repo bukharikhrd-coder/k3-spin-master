@@ -11,7 +11,23 @@ export type WinnerDisplayMode =
 
 export type DecorationKey =
   | "gears" | "helmets" | "hazardStripes" | "apar" | "cones"
-  | "smoke" | "dust" | "sparkles" | "stageLights";
+  | "smoke" | "dust" | "sparkles" | "stageLights"
+  | "shield" | "trophy" | "confetti";
+
+export type OrnamentPosition =
+  | "tl" | "tc" | "tr"
+  | "ml" | "mc" | "mr"
+  | "bl" | "bc" | "br";
+
+export interface OrnamentItem {
+  id: string;
+  label: string;
+  url: string | null;
+  position: OrnamentPosition;
+  size: number;     // px
+  opacity: number;  // 0-100
+  enabled: boolean;
+}
 
 export interface AppSettings {
   lang: LangMode;
