@@ -261,7 +261,7 @@ function Home() {
       </section>
 
       {/* Wheel + controls */}
-      <section className="relative z-10 mx-auto mt-8 grid max-w-[1800px] grid-cols-1 gap-8 px-4 pb-16 md:px-8 lg:grid-cols-[1fr_360px]">
+      <section className={`relative z-10 mx-auto grid max-w-[1800px] grid-cols-1 px-4 md:px-8 lg:grid-cols-[1fr_360px] ${isFullscreen ? "mt-2 gap-4 pb-2 flex-1 min-h-0" : "mt-8 gap-8 pb-16"}`}>
         <div className="flex flex-col items-center justify-center">
           {participants.length === 0 ? (
             <div className="glass-strong rounded-3xl p-10 text-center max-w-lg">
