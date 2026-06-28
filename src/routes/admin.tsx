@@ -440,3 +440,165 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
     </Field>
   );
 }
+
+type LogoUploaderProps = {
+  label: string;
+  url: string | null;
+  size: number;
+  opacity: number;
+  onChange: (patch: { url?: string | null; size?: number; opacity?: number }) => void;
+  fileToDataUrl: (file: File, maxMB?: number) => Promise<string | null>;
+};
+
+function LogoUploader({ label, url, size, opacity, onChange, fileToDataUrl }: LogoUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl bg-black/30 border border-white/10 p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{label}</div>
+        {url && (
+          <button
+            onClick={() => { if (confirm("Hapus logo ini?")) onChange({ url: null }); }}
+            className="text-xs text-destructive hover:underline"
+          >Hapus</button>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        <div
+          className="flex items-center justify-center rounded-lg bg-white/5 border border-white/10"
+          style={{ width: 96, height: 96 }}
+        >
+          {url ? (
+            <img src={url} alt="" style={{ maxWidth: "100%", maxHeight: "100%", opacity: opacity / 100 }} />
+          ) : (
+            <span className="text-xs text-muted-foreground">Belum ada</span>
+          )}
+        </div>
+        <div className="flex-1">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                const d = await fileToDataUrl(f, 3);
+                if (d) onChange({ url: d });
+              }
+              e.currentTarget.value = "";
+            }}
+          />
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            <Upload className="h-3.5 w-3.5" /> {url ? "Ganti" : "Upload"}
+          </button>
+        </div>
+      </div>
+      <Slider label="Ukuran" min={32} max={200} value={size} onChange={(v) => onChange({ size: v })} suffix="px" />
+      <Slider label="Opasitas" min={10} max={100} value={opacity} onChange={(v) => onChange({ opacity: v })} suffix="%" />
+    </div>
+  );
+}
+
+const POSITIONS: { id: OrnamentPosition; label: string }[] = [
+  { id: "tl", label: "↖" }, { id: "tc", label: "↑" }, { id: "tr", label: "↗" },
+  { id: "ml", label: "←" }, { id: "mc", label: "•" }, { id: "mr", label: "→" },
+  { id: "bl", label: "↙" }, { id: "bc", label: "↓" }, { id: "br", label: "↘" },
+];
+
+function OrnamentSlot({
+  ornament,
+  onChange,
+  fileToDataUrl,
+}: {
+  ornament: OrnamentItem;
+  onChange: (patch: Partial<OrnamentItem>) => void;
+  fileToDataUrl: (file: File, maxMB?: number) => Promise<string | null>;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl bg-black/30 border border-white/10 p-4 grid grid-cols-1 md:grid-cols-[120px_1fr_220px] gap-4 items-center">
+      <div
+        className="flex items-center justify-center rounded-lg bg-white/5 border border-white/10"
+        style={{ width: 120, height: 120 }}
+      >
+        {ornament.url ? (
+          <img src={ornament.url} alt="" style={{ maxWidth: "100%", maxHeight: "100%", opacity: ornament.opacity / 100 }} />
+        ) : (
+          <span className="text-xs text-muted-foreground text-center px-2">Belum ada ornamen</span>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <input
+            value={ornament.label}
+            onChange={(e) => onChange({ label: e.target.value })}
+            className="rounded-lg bg-black/40 border border-white/15 px-3 py-1.5 text-sm font-semibold flex-1"
+          />
+          <label className="flex items-center gap-1 text-xs">
+            <input
+              type="checkbox"
+              checked={ornament.enabled}
+              onChange={(e) => onChange({ enabled: e.target.checked })}
+              className="h-4 w-4 accent-[var(--safety-yellow)]"
+            />
+            Aktif
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                const d = await fileToDataUrl(f, 5);
+                if (d) onChange({ url: d });
+              }
+              e.currentTarget.value = "";
+            }}
+          />
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            <Upload className="h-3.5 w-3.5" /> {ornament.url ? "Ganti gambar" : "Upload gambar"}
+          </button>
+          {ornament.url && (
+            <button
+              onClick={() => { if (confirm("Hapus gambar ornamen ini?")) onChange({ url: null }); }}
+              className="inline-flex items-center gap-2 rounded-lg bg-destructive/80 px-3 py-1.5 text-sm font-semibold hover:bg-destructive"
+            >
+              <Trash className="h-3.5 w-3.5" /> Hapus
+            </button>
+          )}
+        </div>
+        <Slider label="Ukuran" min={48} max={320} value={ornament.size} onChange={(v) => onChange({ size: v })} suffix="px" />
+        <Slider label="Opasitas" min={10} max={100} value={ornament.opacity} onChange={(v) => onChange({ opacity: v })} suffix="%" />
+      </div>
+
+      <div>
+        <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Posisi</div>
+        <div className="grid grid-cols-3 gap-1">
+          {POSITIONS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => onChange({ position: p.id })}
+              className={`rounded-md py-2 text-lg font-bold transition ${
+                ornament.position === p.id
+                  ? "bg-[var(--safety-yellow)] text-black"
+                  : "bg-white/5 text-foreground hover:bg-white/10"
+              }`}
+            >{p.label}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
