@@ -168,7 +168,7 @@ function Home() {
   const timeStr = now ? now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className={`relative overflow-x-hidden ${isFullscreen ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"}`}>
       <HomeBackground settings={settings} />
 
       {/* Background music — hidden audio element, controlled via settings */}
