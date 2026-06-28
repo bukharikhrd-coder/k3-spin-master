@@ -30,21 +30,25 @@ function AdminPage() {
 
   useEffect(() => { void initSettings(); void initParticipants(); }, [initSettings, initParticipants]);
 
+  async function fileToDataUrl(file: File, maxMB = 5): Promise<string | null> {
+    if (file.size > maxMB * 1024 * 1024) {
+      alert(`File terlalu besar. Maks ${maxMB} MB.`);
+      return null;
+    }
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
   async function handleBgmUpload(file: File) {
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-      alert("Audio file too large. Max 8 MB recommended for fast sync across devices.");
-      return;
-    }
     setUploading(true);
     try {
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result as string);
-        r.onerror = () => reject(r.error);
-        r.readAsDataURL(file);
-      });
-      setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
+      const dataUrl = await fileToDataUrl(file, 8);
+      if (dataUrl) setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
     } finally {
       setUploading(false);
     }
