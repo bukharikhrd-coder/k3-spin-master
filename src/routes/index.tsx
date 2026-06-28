@@ -61,15 +61,25 @@ function Home() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 640) setWheelSize(Math.min(w - 32, 360));
-      else if (w < 1024) setWheelSize(480);
-      else if (w < 1536) setWheelSize(560);
-      else setWheelSize(680);
+      const h = window.innerHeight;
+      if (isFullscreen) {
+        // Fit wheel within viewport: leave space for title (~22vh) and side panel on lg.
+        const reservedV = h * 0.28;
+        const reservedH = w >= 1024 ? 400 : 32; // side panel + gap
+        const maxByH = h - reservedV;
+        const maxByW = w - reservedH;
+        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 820)));
+      } else {
+        if (w < 640) setWheelSize(Math.min(w - 32, 360));
+        else if (w < 1024) setWheelSize(480);
+        else if (w < 1536) setWheelSize(560);
+        else setWheelSize(680);
+      }
     };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [isFullscreen]);
 
   // Fullscreen tracking
   useEffect(() => {
@@ -158,7 +168,7 @@ function Home() {
   const timeStr = now ? now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className={`relative overflow-x-hidden ${isFullscreen ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"}`}>
       <HomeBackground settings={settings} />
 
       {/* Background music — hidden audio element, controlled via settings */}
@@ -228,21 +238,21 @@ function Home() {
       )}
 
       {/* Title */}
-      <section className={`relative z-10 mx-auto max-w-[1600px] px-4 text-center md:px-8 ${isFullscreen ? "pt-6" : ""}`}>
+      <section className={`relative z-10 mx-auto max-w-[1600px] px-4 text-center md:px-8 ${isFullscreen ? "pt-3 shrink-0" : ""}`}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full glass px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[var(--safety-yellow)]">
+          <div className={`mb-2 inline-flex items-center gap-2 rounded-full glass px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[var(--safety-yellow)] ${isFullscreen ? "hidden" : ""}`}>
             <Sparkles className="h-3.5 w-3.5" /> Safety Lucky Draw
           </div>
-          <h1 className="font-display text-3xl font-extrabold leading-tight grad-text-gold text-glow-yellow sm:text-5xl md:text-6xl xl:text-7xl whitespace-pre-line">
+          <h1 className={`font-display font-extrabold leading-tight grad-text-gold text-glow-yellow whitespace-pre-line ${isFullscreen ? "text-2xl md:text-4xl xl:text-5xl" : "text-3xl sm:text-5xl md:text-6xl xl:text-7xl"}`}>
             {t("appTitle")}
           </h1>
-          <p className="mt-2 font-display text-base uppercase tracking-[0.4em] text-foreground/80 md:text-xl whitespace-pre-line">
+          <p className={`mt-1 font-display uppercase tracking-[0.4em] text-foreground/80 whitespace-pre-line ${isFullscreen ? "text-xs md:text-sm" : "text-base md:text-xl mt-2"}`}>
             {t("appSubtitle")}
           </p>
         </motion.div>
 
         {/* Stats */}
-        <div className="mx-auto mt-6 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <div className={`mx-auto grid max-w-5xl grid-cols-2 md:grid-cols-4 ${isFullscreen ? "mt-2 gap-2" : "mt-6 gap-3 md:gap-4"}`}>
           <Stat icon={<Users className="h-5 w-5" />} label={t("stats_total")} value={participants.length} accent="blue" />
           <Stat icon={<Hash  className="h-5 w-5" />} label={t("stats_remaining")} value={remaining.length} accent="yellow" />
           <Stat icon={<Trophy className="h-5 w-5" />} label={t("stats_winners")} value={wonCount} accent="orange" />
@@ -251,7 +261,7 @@ function Home() {
       </section>
 
       {/* Wheel + controls */}
-      <section className="relative z-10 mx-auto mt-8 grid max-w-[1800px] grid-cols-1 gap-8 px-4 pb-16 md:px-8 lg:grid-cols-[1fr_360px]">
+      <section className={`relative z-10 mx-auto grid max-w-[1800px] grid-cols-1 px-4 md:px-8 lg:grid-cols-[1fr_360px] ${isFullscreen ? "mt-2 gap-4 pb-2 flex-1 min-h-0" : "mt-8 gap-8 pb-16"}`}>
         <div className="flex flex-col items-center justify-center">
           {participants.length === 0 ? (
             <div className="glass-strong rounded-3xl p-10 text-center max-w-lg">
