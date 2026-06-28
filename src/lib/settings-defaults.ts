@@ -74,6 +74,7 @@ export interface AppSettings {
     spinSfxEnabled: boolean;
     winnerSfxEnabled: boolean;
   };
+  decorations: Record<DecorationKey, boolean>;
   ornaments: OrnamentItem[];
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
