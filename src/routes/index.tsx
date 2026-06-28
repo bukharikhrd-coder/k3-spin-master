@@ -7,6 +7,7 @@ import { useParticipants, type Participant } from "@/lib/participants-store";
 import { SpinningWheel, type SpinningWheelHandle } from "@/components/wheel/SpinningWheel";
 import { WinnerReveal } from "@/components/WinnerReveal";
 import { HomeBackground } from "@/components/HomeBackground";
+import { SafetyOrnaments } from "@/components/SafetyOrnaments";
 import { fireCelebration, startSpinSfx, playWinnerSfx } from "@/lib/celebration";
 import { supabase } from "@/integrations/supabase/client";
 
