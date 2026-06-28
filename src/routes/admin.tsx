@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Users, Trash2, Sparkles, Eye, Upload, Volume2, VolumeX, Trash } from "lucide-react";
 import { useSettings } from "@/lib/settings-store";
 import { useParticipants } from "@/lib/participants-store";
-import { BACKGROUND_PRESETS } from "@/lib/settings-defaults";
+import { BACKGROUND_PRESETS, type OrnamentItem, type OrnamentPosition } from "@/lib/settings-defaults";
 import type { LangMode, TextKey } from "@/lib/i18n";
 import { TEXT_KEYS, DEFAULT_TEXTS } from "@/lib/i18n";
 
