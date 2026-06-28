@@ -61,10 +61,20 @@ function Home() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 640) setWheelSize(Math.min(w - 32, 360));
-      else if (w < 1024) setWheelSize(480);
-      else if (w < 1536) setWheelSize(560);
-      else setWheelSize(680);
+      const h = window.innerHeight;
+      if (isFullscreen) {
+        // Fit wheel within viewport: leave space for title (~22vh) and side panel on lg.
+        const reservedV = h * 0.28;
+        const reservedH = w >= 1024 ? 400 : 32; // side panel + gap
+        const maxByH = h - reservedV;
+        const maxByW = w - reservedH;
+        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 820)));
+      } else {
+        if (w < 640) setWheelSize(Math.min(w - 32, 360));
+        else if (w < 1024) setWheelSize(480);
+        else if (w < 1536) setWheelSize(560);
+        else setWheelSize(680);
+      }
     };
     update();
     window.addEventListener("resize", update);
