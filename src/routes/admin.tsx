@@ -125,6 +125,85 @@ function AdminPage() {
           </section>
         )}
 
+        {tab === "branding" && (
+          <section className="glass rounded-2xl p-6 space-y-8">
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Logo Perusahaan & Event</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <LogoUploader
+                  label="Logo Perusahaan"
+                  url={settings.logos.company.url}
+                  size={settings.logos.company.size}
+                  opacity={settings.logos.company.opacity}
+                  onChange={(patch) => setSettings((s) => ({ ...s, logos: { ...s.logos, company: { ...s.logos.company, ...patch } } }))}
+                  fileToDataUrl={fileToDataUrl}
+                />
+                <LogoUploader
+                  label="Logo Event / K3"
+                  url={settings.logos.event.url}
+                  size={settings.logos.event.size}
+                  opacity={settings.logos.event.opacity}
+                  onChange={(patch) => setSettings((s) => ({ ...s, logos: { ...s.logos, event: { ...s.logos.event, ...patch } } }))}
+                  fileToDataUrl={fileToDataUrl}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Ornamen Bawaan (Safety & Juara)</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Aktifkan / matikan ornamen tematik K3 dan piala juara yang muncul di sudut layar utama.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {([
+                  ["gears", "Roda Gigi"],
+                  ["helmets", "Helm Safety"],
+                  ["shield", "Perisai K3"],
+                  ["trophy", "Piala Juara"],
+                  ["apar", "APAR"],
+                  ["cones", "Cone Lalu Lintas"],
+                  ["sparkles", "Kilauan"],
+                  ["hazardStripes", "Strip Hazard"],
+                  ["stageLights", "Lampu Panggung"],
+                  ["confetti", "Confetti"],
+                ] as const).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 cursor-pointer hover:bg-white/10">
+                    <input
+                      type="checkbox"
+                      checked={!!settings.decorations[key]}
+                      onChange={(e) => setSettings((s) => ({ ...s, decorations: { ...s.decorations, [key]: e.target.checked } }))}
+                      className="h-4 w-4 accent-[var(--safety-yellow)]"
+                    />
+                    <span className="text-sm">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Ornamen Kustom (Upload Gambar)</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Upload gambar PNG/SVG (transparan disarankan). Maks 5 MB per gambar. Posisi & ukuran bisa diatur. Tersimpan di cloud agar muncul di semua perangkat.
+              </p>
+              <div className="space-y-4">
+                {settings.ornaments.map((orn, idx) => (
+                  <OrnamentSlot
+                    key={orn.id}
+                    ornament={orn}
+                    onChange={(patch) => setSettings((s) => ({
+                      ...s,
+                      ornaments: s.ornaments.map((o, i) => i === idx ? { ...o, ...patch } : o),
+                    }))}
+                    fileToDataUrl={fileToDataUrl}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+
+
         {tab === "participants" && (
           <section className="glass rounded-2xl p-6 space-y-5">
             <div className="flex flex-wrap items-end gap-3">
