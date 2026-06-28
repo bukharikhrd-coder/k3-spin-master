@@ -55,11 +55,27 @@ async function pushToCloud(settings: AppSettings) {
  * copy in Supabase keeps the full value.
  */
 function toCacheable(s: AppSettings): AppSettings {
+  let out = s;
   const bgm = s.sound?.bgmUrl;
   if (bgm && bgm.startsWith("data:") && bgm.length > 200_000) {
-    return { ...s, sound: { ...s.sound, bgmUrl: null } };
+    out = { ...out, sound: { ...out.sound, bgmUrl: null } };
   }
-  return s;
+  // Strip large data-URL images (logos/ornaments) from local cache.
+  const stripImg = (u: string | null | undefined) =>
+    u && u.startsWith("data:") && u.length > 200_000 ? null : (u ?? null);
+  if (out.logos) {
+    out = {
+      ...out,
+      logos: {
+        company: { ...out.logos.company, url: stripImg(out.logos.company?.url) },
+        event:   { ...out.logos.event,   url: stripImg(out.logos.event?.url) },
+      },
+    };
+  }
+  if (Array.isArray(out.ornaments)) {
+    out = { ...out, ornaments: out.ornaments.map((o) => ({ ...o, url: stripImg(o.url) })) };
+  }
+  return out;
 }
 
 function safeSetCache(s: AppSettings) {
