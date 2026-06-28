@@ -61,12 +61,13 @@ function AdminPage() {
           <div className="text-xs text-muted-foreground">Auto-saved · {settings.lang.toUpperCase()}</div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 pb-2">
-          {(["general", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
+          {(["general", "branding", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === id ? "bg-[var(--safety-yellow)] text-black" : "text-muted-foreground hover:bg-white/5"
               }`}>
               {id === "general" ? t("admin_general")
+                : id === "branding" ? "Branding & Ornamen"
                 : id === "participants" ? t("admin_participants")
                 : id === "theme" ? t("admin_theme")
                 : id === "text" ? t("admin_text")
