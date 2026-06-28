@@ -238,21 +238,21 @@ function Home() {
       )}
 
       {/* Title */}
-      <section className={`relative z-10 mx-auto max-w-[1600px] px-4 text-center md:px-8 ${isFullscreen ? "pt-6" : ""}`}>
+      <section className={`relative z-10 mx-auto max-w-[1600px] px-4 text-center md:px-8 ${isFullscreen ? "pt-3 shrink-0" : ""}`}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full glass px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[var(--safety-yellow)]">
+          <div className={`mb-2 inline-flex items-center gap-2 rounded-full glass px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[var(--safety-yellow)] ${isFullscreen ? "hidden" : ""}`}>
             <Sparkles className="h-3.5 w-3.5" /> Safety Lucky Draw
           </div>
-          <h1 className="font-display text-3xl font-extrabold leading-tight grad-text-gold text-glow-yellow sm:text-5xl md:text-6xl xl:text-7xl whitespace-pre-line">
+          <h1 className={`font-display font-extrabold leading-tight grad-text-gold text-glow-yellow whitespace-pre-line ${isFullscreen ? "text-2xl md:text-4xl xl:text-5xl" : "text-3xl sm:text-5xl md:text-6xl xl:text-7xl"}`}>
             {t("appTitle")}
           </h1>
-          <p className="mt-2 font-display text-base uppercase tracking-[0.4em] text-foreground/80 md:text-xl whitespace-pre-line">
+          <p className={`mt-1 font-display uppercase tracking-[0.4em] text-foreground/80 whitespace-pre-line ${isFullscreen ? "text-xs md:text-sm" : "text-base md:text-xl mt-2"}`}>
             {t("appSubtitle")}
           </p>
         </motion.div>
 
         {/* Stats */}
-        <div className="mx-auto mt-6 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <div className={`mx-auto grid max-w-5xl grid-cols-2 md:grid-cols-4 ${isFullscreen ? "mt-2 gap-2" : "mt-6 gap-3 md:gap-4"}`}>
           <Stat icon={<Users className="h-5 w-5" />} label={t("stats_total")} value={participants.length} accent="blue" />
           <Stat icon={<Hash  className="h-5 w-5" />} label={t("stats_remaining")} value={remaining.length} accent="yellow" />
           <Stat icon={<Trophy className="h-5 w-5" />} label={t("stats_winners")} value={wonCount} accent="orange" />
