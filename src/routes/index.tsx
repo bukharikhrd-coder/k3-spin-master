@@ -7,6 +7,7 @@ import { useParticipants, type Participant } from "@/lib/participants-store";
 import { SpinningWheel, type SpinningWheelHandle } from "@/components/wheel/SpinningWheel";
 import { WinnerReveal } from "@/components/WinnerReveal";
 import { HomeBackground } from "@/components/HomeBackground";
+import { SafetyOrnaments } from "@/components/SafetyOrnaments";
 import { fireCelebration, startSpinSfx, playWinnerSfx } from "@/lib/celebration";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -170,6 +171,8 @@ function Home() {
   return (
     <div className={`relative overflow-x-hidden ${isFullscreen ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"}`}>
       <HomeBackground settings={settings} />
+      <SafetyOrnaments settings={settings} compact={isFullscreen} />
+
 
       {/* Background music — hidden audio element, controlled via settings */}
       {settings.sound.bgmUrl && (

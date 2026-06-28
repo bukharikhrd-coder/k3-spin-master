@@ -11,7 +11,23 @@ export type WinnerDisplayMode =
 
 export type DecorationKey =
   | "gears" | "helmets" | "hazardStripes" | "apar" | "cones"
-  | "smoke" | "dust" | "sparkles" | "stageLights";
+  | "smoke" | "dust" | "sparkles" | "stageLights"
+  | "shield" | "trophy" | "confetti";
+
+export type OrnamentPosition =
+  | "tl" | "tc" | "tr"
+  | "ml" | "mc" | "mr"
+  | "bl" | "bc" | "br";
+
+export interface OrnamentItem {
+  id: string;
+  label: string;
+  url: string | null;
+  position: OrnamentPosition;
+  size: number;     // px
+  opacity: number;  // 0-100
+  enabled: boolean;
+}
 
 export interface AppSettings {
   lang: LangMode;
@@ -59,6 +75,7 @@ export interface AppSettings {
     winnerSfxEnabled: boolean;
   };
   decorations: Record<DecorationKey, boolean>;
+  ornaments: OrnamentItem[];
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
   currentRound: number;
@@ -105,9 +122,16 @@ export const DEFAULT_SETTINGS: AppSettings = {
     winnerSfxEnabled: true,
   },
   decorations: {
-    gears: true, helmets: true, hazardStripes: true, apar: false,
-    cones: false, smoke: true, dust: true, sparkles: true, stageLights: true,
+    gears: true, helmets: true, hazardStripes: true, apar: true,
+    cones: true, smoke: true, dust: true, sparkles: true, stageLights: true,
+    shield: true, trophy: true, confetti: true,
   },
+  ornaments: [
+    { id: "orn1", label: "Ornamen 1", url: null, position: "tl", size: 120, opacity: 100, enabled: true },
+    { id: "orn2", label: "Ornamen 2", url: null, position: "tr", size: 120, opacity: 100, enabled: true },
+    { id: "orn3", label: "Ornamen 3", url: null, position: "bl", size: 120, opacity: 100, enabled: true },
+    { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
+  ],
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,

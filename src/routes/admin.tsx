@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Users, Trash2, Sparkles, Eye, Upload, Volume2, VolumeX, Trash } from "lucide-react";
 import { useSettings } from "@/lib/settings-store";
 import { useParticipants } from "@/lib/participants-store";
-import { BACKGROUND_PRESETS } from "@/lib/settings-defaults";
+import { BACKGROUND_PRESETS, type OrnamentItem, type OrnamentPosition } from "@/lib/settings-defaults";
 import type { LangMode, TextKey } from "@/lib/i18n";
 import { TEXT_KEYS, DEFAULT_TEXTS } from "@/lib/i18n";
 
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab = "general" | "participants" | "theme" | "text" | "wheel" | "sound";
+type Tab = "general" | "branding" | "participants" | "theme" | "text" | "wheel" | "sound";
 
 function AdminPage() {
   const { settings, setSettings, init: initSettings, t } = useSettings();
@@ -30,21 +30,25 @@ function AdminPage() {
 
   useEffect(() => { void initSettings(); void initParticipants(); }, [initSettings, initParticipants]);
 
+  async function fileToDataUrl(file: File, maxMB = 5): Promise<string | null> {
+    if (file.size > maxMB * 1024 * 1024) {
+      alert(`File terlalu besar. Maks ${maxMB} MB.`);
+      return null;
+    }
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
   async function handleBgmUpload(file: File) {
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-      alert("Audio file too large. Max 8 MB recommended for fast sync across devices.");
-      return;
-    }
     setUploading(true);
     try {
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result as string);
-        r.onerror = () => reject(r.error);
-        r.readAsDataURL(file);
-      });
-      setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
+      const dataUrl = await fileToDataUrl(file, 8);
+      if (dataUrl) setSettings((s) => ({ ...s, sound: { ...s.sound, bgmUrl: dataUrl } }));
     } finally {
       setUploading(false);
     }
@@ -61,12 +65,13 @@ function AdminPage() {
           <div className="text-xs text-muted-foreground">Auto-saved · {settings.lang.toUpperCase()}</div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 pb-2">
-          {(["general", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
+          {(["general", "branding", "participants", "theme", "text", "wheel", "sound"] as const).map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === id ? "bg-[var(--safety-yellow)] text-black" : "text-muted-foreground hover:bg-white/5"
               }`}>
               {id === "general" ? t("admin_general")
+                : id === "branding" ? "Branding & Ornamen"
                 : id === "participants" ? t("admin_participants")
                 : id === "theme" ? t("admin_theme")
                 : id === "text" ? t("admin_text")
@@ -119,6 +124,85 @@ function AdminPage() {
               onChange={(v) => setSettings((s) => ({ ...s, background: { ...s.background, zoom: v } }))} suffix="%" />
           </section>
         )}
+
+        {tab === "branding" && (
+          <section className="glass rounded-2xl p-6 space-y-8">
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Logo Perusahaan & Event</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <LogoUploader
+                  label="Logo Perusahaan"
+                  url={settings.logos.company.url}
+                  size={settings.logos.company.size}
+                  opacity={settings.logos.company.opacity}
+                  onChange={(patch) => setSettings((s) => ({ ...s, logos: { ...s.logos, company: { ...s.logos.company, ...patch } } }))}
+                  fileToDataUrl={fileToDataUrl}
+                />
+                <LogoUploader
+                  label="Logo Event / K3"
+                  url={settings.logos.event.url}
+                  size={settings.logos.event.size}
+                  opacity={settings.logos.event.opacity}
+                  onChange={(patch) => setSettings((s) => ({ ...s, logos: { ...s.logos, event: { ...s.logos.event, ...patch } } }))}
+                  fileToDataUrl={fileToDataUrl}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Ornamen Bawaan (Safety & Juara)</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Aktifkan / matikan ornamen tematik K3 dan piala juara yang muncul di sudut layar utama.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {([
+                  ["gears", "Roda Gigi"],
+                  ["helmets", "Helm Safety"],
+                  ["shield", "Perisai K3"],
+                  ["trophy", "Piala Juara"],
+                  ["apar", "APAR"],
+                  ["cones", "Cone Lalu Lintas"],
+                  ["sparkles", "Kilauan"],
+                  ["hazardStripes", "Strip Hazard"],
+                  ["stageLights", "Lampu Panggung"],
+                  ["confetti", "Confetti"],
+                ] as const).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 cursor-pointer hover:bg-white/10">
+                    <input
+                      type="checkbox"
+                      checked={!!settings.decorations[key]}
+                      onChange={(e) => setSettings((s) => ({ ...s, decorations: { ...s.decorations, [key]: e.target.checked } }))}
+                      className="h-4 w-4 accent-[var(--safety-yellow)]"
+                    />
+                    <span className="text-sm">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display text-lg font-bold mb-3">Ornamen Kustom (Upload Gambar)</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Upload gambar PNG/SVG (transparan disarankan). Maks 5 MB per gambar. Posisi & ukuran bisa diatur. Tersimpan di cloud agar muncul di semua perangkat.
+              </p>
+              <div className="space-y-4">
+                {settings.ornaments.map((orn, idx) => (
+                  <OrnamentSlot
+                    key={orn.id}
+                    ornament={orn}
+                    onChange={(patch) => setSettings((s) => ({
+                      ...s,
+                      ornaments: s.ornaments.map((o, i) => i === idx ? { ...o, ...patch } : o),
+                    }))}
+                    fileToDataUrl={fileToDataUrl}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+
 
         {tab === "participants" && (
           <section className="glass rounded-2xl p-6 space-y-5">
@@ -354,5 +438,167 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
         <input value={value} onChange={(e) => onChange(e.target.value)} className="rounded-lg bg-black/40 border border-white/15 px-3 py-2 w-40 font-mono text-sm" />
       </div>
     </Field>
+  );
+}
+
+type LogoUploaderProps = {
+  label: string;
+  url: string | null;
+  size: number;
+  opacity: number;
+  onChange: (patch: { url?: string | null; size?: number; opacity?: number }) => void;
+  fileToDataUrl: (file: File, maxMB?: number) => Promise<string | null>;
+};
+
+function LogoUploader({ label, url, size, opacity, onChange, fileToDataUrl }: LogoUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl bg-black/30 border border-white/10 p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{label}</div>
+        {url && (
+          <button
+            onClick={() => { if (confirm("Hapus logo ini?")) onChange({ url: null }); }}
+            className="text-xs text-destructive hover:underline"
+          >Hapus</button>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        <div
+          className="flex items-center justify-center rounded-lg bg-white/5 border border-white/10"
+          style={{ width: 96, height: 96 }}
+        >
+          {url ? (
+            <img src={url} alt="" style={{ maxWidth: "100%", maxHeight: "100%", opacity: opacity / 100 }} />
+          ) : (
+            <span className="text-xs text-muted-foreground">Belum ada</span>
+          )}
+        </div>
+        <div className="flex-1">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                const d = await fileToDataUrl(f, 3);
+                if (d) onChange({ url: d });
+              }
+              e.currentTarget.value = "";
+            }}
+          />
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            <Upload className="h-3.5 w-3.5" /> {url ? "Ganti" : "Upload"}
+          </button>
+        </div>
+      </div>
+      <Slider label="Ukuran" min={32} max={200} value={size} onChange={(v) => onChange({ size: v })} suffix="px" />
+      <Slider label="Opasitas" min={10} max={100} value={opacity} onChange={(v) => onChange({ opacity: v })} suffix="%" />
+    </div>
+  );
+}
+
+const POSITIONS: { id: OrnamentPosition; label: string }[] = [
+  { id: "tl", label: "↖" }, { id: "tc", label: "↑" }, { id: "tr", label: "↗" },
+  { id: "ml", label: "←" }, { id: "mc", label: "•" }, { id: "mr", label: "→" },
+  { id: "bl", label: "↙" }, { id: "bc", label: "↓" }, { id: "br", label: "↘" },
+];
+
+function OrnamentSlot({
+  ornament,
+  onChange,
+  fileToDataUrl,
+}: {
+  ornament: OrnamentItem;
+  onChange: (patch: Partial<OrnamentItem>) => void;
+  fileToDataUrl: (file: File, maxMB?: number) => Promise<string | null>;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl bg-black/30 border border-white/10 p-4 grid grid-cols-1 md:grid-cols-[120px_1fr_220px] gap-4 items-center">
+      <div
+        className="flex items-center justify-center rounded-lg bg-white/5 border border-white/10"
+        style={{ width: 120, height: 120 }}
+      >
+        {ornament.url ? (
+          <img src={ornament.url} alt="" style={{ maxWidth: "100%", maxHeight: "100%", opacity: ornament.opacity / 100 }} />
+        ) : (
+          <span className="text-xs text-muted-foreground text-center px-2">Belum ada ornamen</span>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <input
+            value={ornament.label}
+            onChange={(e) => onChange({ label: e.target.value })}
+            className="rounded-lg bg-black/40 border border-white/15 px-3 py-1.5 text-sm font-semibold flex-1"
+          />
+          <label className="flex items-center gap-1 text-xs">
+            <input
+              type="checkbox"
+              checked={ornament.enabled}
+              onChange={(e) => onChange({ enabled: e.target.checked })}
+              className="h-4 w-4 accent-[var(--safety-yellow)]"
+            />
+            Aktif
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                const d = await fileToDataUrl(f, 5);
+                if (d) onChange({ url: d });
+              }
+              e.currentTarget.value = "";
+            }}
+          />
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            <Upload className="h-3.5 w-3.5" /> {ornament.url ? "Ganti gambar" : "Upload gambar"}
+          </button>
+          {ornament.url && (
+            <button
+              onClick={() => { if (confirm("Hapus gambar ornamen ini?")) onChange({ url: null }); }}
+              className="inline-flex items-center gap-2 rounded-lg bg-destructive/80 px-3 py-1.5 text-sm font-semibold hover:bg-destructive"
+            >
+              <Trash className="h-3.5 w-3.5" /> Hapus
+            </button>
+          )}
+        </div>
+        <Slider label="Ukuran" min={48} max={320} value={ornament.size} onChange={(v) => onChange({ size: v })} suffix="px" />
+        <Slider label="Opasitas" min={10} max={100} value={ornament.opacity} onChange={(v) => onChange({ opacity: v })} suffix="%" />
+      </div>
+
+      <div>
+        <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Posisi</div>
+        <div className="grid grid-cols-3 gap-1">
+          {POSITIONS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => onChange({ position: p.id })}
+              className={`rounded-md py-2 text-lg font-bold transition ${
+                ornament.position === p.id
+                  ? "bg-[var(--safety-yellow)] text-black"
+                  : "bg-white/5 text-foreground hover:bg-white/10"
+              }`}
+            >{p.label}</button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
