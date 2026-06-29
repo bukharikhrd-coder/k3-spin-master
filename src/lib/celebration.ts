@@ -49,7 +49,17 @@ function tick(c: AudioContext, vol: number) {
  * Schedule a stream of ticks that start fast and gradually slow down over
  * `durationSec`, mirroring the wheel's deceleration. Returns a stop fn.
  */
-export function startSpinSfx(opts: { durationSec: number; master: number; effects: number; muted: boolean }) {
+export function startSpinSfx(opts: { durationSec: number; master: number; effects: number; muted: boolean; url?: string | null }) {
+  // If an uploaded SFX is provided, play it once (looped) for the duration.
+  if (opts.url) {
+    const vol = effVolume(opts.master, opts.effects, opts.muted);
+    if (vol <= 0) return () => {};
+    const a = new Audio(opts.url);
+    a.loop = true;
+    a.volume = vol;
+    a.play().catch(() => {});
+    return () => { try { a.pause(); a.src = ""; } catch {} };
+  }
   const c = ctx();
   if (!c) return () => {};
   const vol = effVolume(opts.master, opts.effects, opts.muted);
