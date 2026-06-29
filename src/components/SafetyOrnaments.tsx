@@ -14,72 +14,87 @@ export function SafetyOrnaments({ settings, compact = false }: { settings: AppSe
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[5] overflow-hidden">
-      {/* Top-left: gear */}
+      {/* Top-left: gear (continuous rotation) */}
       {d.gears && (
         <motion.div
           className="absolute -left-6 -top-6"
           style={{ width: base * 1.6, height: base * 1.6 }}
           animate={{ rotate: 360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
         >
-          <Gear color="#FFC107" opacity={0.18} />
+          <Gear color="#FFC107" opacity={0.22} />
+        </motion.div>
+      )}
+      {/* Second smaller gear, counter-rotating, lower-mid-left */}
+      {d.gears && (
+        <motion.div
+          className="absolute left-[6%] top-[55%]"
+          style={{ width: base * 1.0, height: base * 1.0 }}
+          animate={{ rotate: -360 }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        >
+          <Gear color="#FF7A00" opacity={0.18} />
         </motion.div>
       )}
 
-      {/* Top-right: shield */}
+      {/* Top-right: shield — floating + gentle pulse */}
       {d.shield && (
         <motion.div
           className="absolute -right-4 top-4"
           style={{ width: base * 1.3, height: base * 1.3 }}
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ y: [0, -12, 0], rotate: [-4, 4, -4], scale: [1, 1.05, 1] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
         >
           <Shield />
         </motion.div>
       )}
 
-      {/* Bottom-left: hard hat */}
+      {/* Bottom-left: hard hat — bouncing & tilting */}
       {d.helmets && (
         <motion.div
           className="absolute bottom-4 left-4"
           style={{ width: base * 1.2, height: base * 1.2 }}
-          animate={{ rotate: [-3, 3, -3] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ rotate: [-8, 8, -8], y: [0, -8, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
           <HardHat />
         </motion.div>
       )}
 
-      {/* Bottom-right: trophy */}
+      {/* Bottom-right: trophy — celebratory bounce + glow */}
       {d.trophy && (
         <motion.div
           className="absolute bottom-6 right-6"
-          style={{ width: base * 1.4, height: base * 1.4 }}
-          animate={{ y: [0, -8, 0], rotate: [-2, 2, -2] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ width: base * 1.4, height: base * 1.4, filter: "drop-shadow(0 0 18px rgba(255,193,7,0.6))" }}
+          animate={{ y: [0, -14, 0], rotate: [-6, 6, -6], scale: [1, 1.08, 1] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
         >
           <Trophy />
         </motion.div>
       )}
 
-      {/* Left middle: APAR (fire extinguisher) */}
+      {/* Left middle: APAR — subtle sway */}
       {d.apar && (
-        <div
+        <motion.div
           className="absolute left-2 top-1/2 -translate-y-1/2"
           style={{ width: base * 0.9, height: base * 1.4 }}
+          animate={{ rotate: [-3, 3, -3], y: [0, -4, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
           <Apar />
-        </div>
+        </motion.div>
       )}
 
-      {/* Right middle: traffic cones */}
+      {/* Right middle: traffic cones — bobbing */}
       {d.cones && (
-        <div
+        <motion.div
           className="absolute right-2 top-1/2 -translate-y-1/2"
           style={{ width: base * 0.9, height: base * 1.2 }}
+          animate={{ y: [0, -6, 0], rotate: [-2, 2, -2] }}
+          transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
         >
           <Cone />
-        </div>
+        </motion.div>
       )}
 
       {/* Floating sparkles */}
