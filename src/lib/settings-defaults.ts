@@ -126,6 +126,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     bgmUrl: bgmAsset.url,
     spinSfxEnabled: true,
     winnerSfxEnabled: true,
+    winnerSfxUrl: null,
+    spinSfxUrl: null,
   },
   decorations: {
     gears: true, helmets: true, hazardStripes: true, apar: true,
@@ -138,6 +140,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { id: "orn3", label: "Ornamen 3", url: null, position: "bl", size: 120, opacity: 100, enabled: true },
     { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
   ],
+  showOrnamentsInFullscreen: false,
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,
