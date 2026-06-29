@@ -73,9 +73,15 @@ export interface AppSettings {
     bgmUrl: string | null;
     spinSfxEnabled: boolean;
     winnerSfxEnabled: boolean;
+    /** Custom uploaded winner SFX (data URL or http URL). null = use built-in fanfare. */
+    winnerSfxUrl: string | null;
+    /** Custom uploaded spin tick SFX. null = synthesized ticks. */
+    spinSfxUrl: string | null;
   };
   decorations: Record<DecorationKey, boolean>;
   ornaments: OrnamentItem[];
+  /** When true the decorative ornaments layer also shows in fullscreen presentation mode. */
+  showOrnamentsInFullscreen: boolean;
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
   currentRound: number;
