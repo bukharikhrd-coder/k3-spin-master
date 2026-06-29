@@ -160,6 +160,17 @@ function AdminPage() {
               <span className="text-xs text-muted-foreground">(default: tersembunyi agar layar bersih)</span>
             </label>
 
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 px-4 py-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                checked={!!settings.showHeaderInFullscreen}
+                onChange={(e) => setSettings((s) => ({ ...s, showHeaderInFullscreen: e.target.checked }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]"
+              />
+              <span className="text-sm font-semibold">Tampilkan header (logo perusahaan & jam) saat mode Fullscreen</span>
+              <span className="text-xs text-muted-foreground">(default: tersembunyi)</span>
+            </label>
+
             <div>
               <h3 className="font-display text-lg font-bold mb-3">Ornamen Bawaan (Safety & Juara)</h3>
               <p className="text-xs text-muted-foreground mb-3">
