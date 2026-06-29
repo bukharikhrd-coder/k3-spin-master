@@ -73,9 +73,15 @@ export interface AppSettings {
     bgmUrl: string | null;
     spinSfxEnabled: boolean;
     winnerSfxEnabled: boolean;
+    /** Custom uploaded winner SFX (data URL or http URL). null = use built-in fanfare. */
+    winnerSfxUrl: string | null;
+    /** Custom uploaded spin tick SFX. null = synthesized ticks. */
+    spinSfxUrl: string | null;
   };
   decorations: Record<DecorationKey, boolean>;
   ornaments: OrnamentItem[];
+  /** When true the decorative ornaments layer also shows in fullscreen presentation mode. */
+  showOrnamentsInFullscreen: boolean;
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
   currentRound: number;
@@ -120,6 +126,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     bgmUrl: bgmAsset.url,
     spinSfxEnabled: true,
     winnerSfxEnabled: true,
+    winnerSfxUrl: null,
+    spinSfxUrl: null,
   },
   decorations: {
     gears: true, helmets: true, hazardStripes: true, apar: true,
@@ -132,6 +140,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { id: "orn3", label: "Ornamen 3", url: null, position: "bl", size: 120, opacity: 100, enabled: true },
     { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
   ],
+  showOrnamentsInFullscreen: false,
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,

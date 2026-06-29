@@ -149,6 +149,17 @@ function AdminPage() {
               </div>
             </div>
 
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 px-4 py-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                checked={!!settings.showOrnamentsInFullscreen}
+                onChange={(e) => setSettings((s) => ({ ...s, showOrnamentsInFullscreen: e.target.checked }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]"
+              />
+              <span className="text-sm font-semibold">Tampilkan ornamen saat mode Fullscreen / Presentasi</span>
+              <span className="text-xs text-muted-foreground">(default: tersembunyi agar layar bersih)</span>
+            </label>
+
             <div>
               <h3 className="font-display text-lg font-bold mb-3">Ornamen Bawaan (Safety & Juara)</h3>
               <p className="text-xs text-muted-foreground mb-3">
@@ -403,9 +414,57 @@ function AdminPage() {
                 className="h-4 w-4 accent-[var(--safety-yellow)]" />
               <span className="text-sm">Fanfare sound when a winner is revealed</span>
             </label>
+
+            <SfxUploader
+              label="Custom Winner Sound (fanfare)"
+              hint="Upload MP3/WAV (≤4MB). Kosongkan untuk pakai fanfare bawaan."
+              url={settings.sound.winnerSfxUrl}
+              onChange={(u) => setSettings((s) => ({ ...s, sound: { ...s.sound, winnerSfxUrl: u } }))}
+              fileToDataUrl={fileToDataUrl}
+            />
+            <SfxUploader
+              label="Custom Spin Sound (ticking)"
+              hint="Upload MP3/WAV (≤4MB). Akan diloop selama roda berputar. Kosongkan untuk pakai bunyi tick sintetis."
+              url={settings.sound.spinSfxUrl}
+              onChange={(u) => setSettings((s) => ({ ...s, sound: { ...s.sound, spinSfxUrl: u } }))}
+              fileToDataUrl={fileToDataUrl}
+            />
           </section>
         )}
       </main>
+    </div>
+  );
+}
+
+function SfxUploader({ label, hint, url, onChange, fileToDataUrl }: {
+  label: string; hint: string; url: string | null;
+  onChange: (u: string | null) => void;
+  fileToDataUrl: (f: File, maxMB?: number) => Promise<string | null>;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl bg-black/30 border border-white/10 p-4 space-y-2">
+      <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{label}</div>
+      <p className="text-xs text-muted-foreground">{hint}</p>
+      <div className="flex flex-wrap gap-2 items-center">
+        <input ref={ref} type="file" accept="audio/*" className="hidden"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            if (f) { const d = await fileToDataUrl(f, 4); if (d) onChange(d); }
+            e.currentTarget.value = "";
+          }} />
+        <button onClick={() => ref.current?.click()}
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--safety-yellow)] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110">
+          <Upload className="h-3.5 w-3.5" /> {url ? "Ganti file" : "Upload file"}
+        </button>
+        {url && (
+          <button onClick={() => { if (confirm("Hapus suara kustom ini?")) onChange(null); }}
+            className="inline-flex items-center gap-2 rounded-lg bg-destructive/80 px-3 py-1.5 text-sm font-semibold hover:bg-destructive">
+            <Trash className="h-3.5 w-3.5" /> Hapus
+          </button>
+        )}
+      </div>
+      {url && <audio src={url} controls className="w-full max-w-md mt-2" />}
     </div>
   );
 }

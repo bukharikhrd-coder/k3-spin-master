@@ -143,6 +143,7 @@ function Home() {
           master: settings.sound.master,
           effects: settings.sound.effects,
           muted: settings.sound.muted,
+          url: settings.sound.spinSfxUrl,
         })
       : () => {};
     await wheelRef.current?.spinTo(winners.map((w) => w.id), settings.wheel.spinDurationSec);
@@ -158,7 +159,7 @@ function Home() {
     setRevealed(winners);
     setRevealOpen(true);
     if (settings.sound.winnerSfxEnabled) {
-      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted });
+      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
     }
     fireCelebration();
     setSpinning(false);
@@ -171,7 +172,9 @@ function Home() {
   return (
     <div className={`relative overflow-x-hidden ${isFullscreen ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"}`}>
       <HomeBackground settings={settings} />
-      <SafetyOrnaments settings={settings} compact={isFullscreen} />
+      {(!isFullscreen || settings.showOrnamentsInFullscreen) && (
+        <SafetyOrnaments settings={settings} compact={isFullscreen} />
+      )}
 
 
       {/* Background music — hidden audio element, controlled via settings */}

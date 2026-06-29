@@ -49,7 +49,17 @@ function tick(c: AudioContext, vol: number) {
  * Schedule a stream of ticks that start fast and gradually slow down over
  * `durationSec`, mirroring the wheel's deceleration. Returns a stop fn.
  */
-export function startSpinSfx(opts: { durationSec: number; master: number; effects: number; muted: boolean }) {
+export function startSpinSfx(opts: { durationSec: number; master: number; effects: number; muted: boolean; url?: string | null }) {
+  // If an uploaded SFX is provided, play it once (looped) for the duration.
+  if (opts.url) {
+    const vol = effVolume(opts.master, opts.effects, opts.muted);
+    if (vol <= 0) return () => {};
+    const a = new Audio(opts.url);
+    a.loop = true;
+    a.volume = vol;
+    a.play().catch(() => {});
+    return () => { try { a.pause(); a.src = ""; } catch {} };
+  }
   const c = ctx();
   if (!c) return () => {};
   const vol = effVolume(opts.master, opts.effects, opts.muted);
@@ -73,13 +83,22 @@ export function startSpinSfx(opts: { durationSec: number; master: number; effect
   return () => { stopped = true; };
 }
 
-/** Triumphant fanfare on a winner reveal. */
-export function playWinnerSfx(opts: { master: number; effects: number; muted: boolean }) {
+/** Triumphant fanfare on a winner reveal. Uses uploaded URL if provided, else synth. */
+export function playWinnerSfx(opts: { master: number; effects: number; muted: boolean; url?: string | null }) {
+  if (opts.url) {
+    const v = effVolume(opts.master, opts.effects, opts.muted);
+    if (v <= 0) return;
+    const a = new Audio(opts.url);
+    a.volume = v;
+    a.play().catch(() => {});
+    return;
+  }
   const c = ctx();
   if (!c) return;
   const vol = effVolume(opts.master, opts.effects, opts.muted);
   if (vol <= 0) return;
   if (c.state === "suspended") void c.resume();
+
 
   const t0 = c.currentTime;
   const notes = [
