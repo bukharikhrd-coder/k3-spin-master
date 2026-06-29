@@ -171,7 +171,9 @@ function Home() {
   return (
     <div className={`relative overflow-x-hidden ${isFullscreen ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"}`}>
       <HomeBackground settings={settings} />
-      <SafetyOrnaments settings={settings} compact={isFullscreen} />
+      {(!isFullscreen || settings.showOrnamentsInFullscreen) && (
+        <SafetyOrnaments settings={settings} compact={isFullscreen} />
+      )}
 
 
       {/* Background music — hidden audio element, controlled via settings */}
