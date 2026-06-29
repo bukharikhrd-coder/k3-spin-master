@@ -159,7 +159,7 @@ function Home() {
     setRevealed(winners);
     setRevealOpen(true);
     if (settings.sound.winnerSfxEnabled) {
-      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted });
+      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
     }
     fireCelebration();
     setSpinning(false);
