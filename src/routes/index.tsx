@@ -143,6 +143,7 @@ function Home() {
           master: settings.sound.master,
           effects: settings.sound.effects,
           muted: settings.sound.muted,
+          url: settings.sound.spinSfxUrl,
         })
       : () => {};
     await wheelRef.current?.spinTo(winners.map((w) => w.id), settings.wheel.spinDurationSec);
