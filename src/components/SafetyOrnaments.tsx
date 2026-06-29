@@ -119,25 +119,31 @@ export function SafetyOrnaments({ settings, compact = false }: { settings: AppSe
         </>
       )}
 
-      {/* Uploaded ornaments */}
+      {/* Uploaded ornaments — each gently floats/rotates so they don't feel stiff */}
       {settings.ornaments
         ?.filter((o) => o.enabled && o.url)
-        .map((o) => (
-          <img
-            key={o.id}
-            src={o.url!}
-            alt=""
-            style={{
-              ...positionToStyle(o.position),
-              width: o.size,
-              height: "auto",
-              opacity: o.opacity / 100,
-              maxWidth: "30vw",
-              maxHeight: "30vh",
-            }}
-            className="absolute object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
-          />
-        ))}
+        .map((o, i) => {
+          const dur = 4 + (i % 3) * 0.7;
+          const rot = 4 + (i % 2) * 2;
+          return (
+            <motion.img
+              key={o.id}
+              src={o.url!}
+              alt=""
+              style={{
+                ...positionToStyle(o.position),
+                width: o.size,
+                height: "auto",
+                opacity: o.opacity / 100,
+                maxWidth: "30vw",
+                maxHeight: "30vh",
+              }}
+              animate={{ y: [0, -10, 0], rotate: [-rot, rot, -rot], scale: [1, 1.04, 1] }}
+              transition={{ duration: dur, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+              className="absolute object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+            />
+          );
+        })}
     </div>
   );
 }
