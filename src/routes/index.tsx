@@ -189,7 +189,7 @@ function Home() {
       )}
 
       {/* Top bar — hidden in fullscreen / presentation mode */}
-      {!isFullscreen && (
+      {(!isFullscreen || settings.showHeaderInFullscreen) && (
         <header className="relative z-10 mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:px-8">
           <div className="flex items-center gap-3">
             {settings.logos.company.url ? (
