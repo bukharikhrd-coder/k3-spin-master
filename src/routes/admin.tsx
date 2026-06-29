@@ -149,6 +149,17 @@ function AdminPage() {
               </div>
             </div>
 
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 px-4 py-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                checked={!!settings.showOrnamentsInFullscreen}
+                onChange={(e) => setSettings((s) => ({ ...s, showOrnamentsInFullscreen: e.target.checked }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]"
+              />
+              <span className="text-sm font-semibold">Tampilkan ornamen saat mode Fullscreen / Presentasi</span>
+              <span className="text-xs text-muted-foreground">(default: tersembunyi agar layar bersih)</span>
+            </label>
+
             <div>
               <h3 className="font-display text-lg font-bold mb-3">Ornamen Bawaan (Safety & Juara)</h3>
               <p className="text-xs text-muted-foreground mb-3">
