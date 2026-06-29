@@ -82,6 +82,8 @@ export interface AppSettings {
   ornaments: OrnamentItem[];
   /** When true the decorative ornaments layer also shows in fullscreen presentation mode. */
   showOrnamentsInFullscreen: boolean;
+  /** When true the top header (logo + clock + buttons) also shows in fullscreen presentation mode. */
+  showHeaderInFullscreen: boolean;
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
   currentRound: number;
@@ -141,6 +143,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
   ],
   showOrnamentsInFullscreen: false,
+  showHeaderInFullscreen: false,
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,
