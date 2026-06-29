@@ -56,10 +56,17 @@ async function pushToCloud(settings: AppSettings) {
  */
 function toCacheable(s: AppSettings): AppSettings {
   let out = s;
-  const bgm = s.sound?.bgmUrl;
-  if (bgm && bgm.startsWith("data:") && bgm.length > 200_000) {
-    out = { ...out, sound: { ...out.sound, bgmUrl: null } };
-  }
+  const stripAudio = (u: string | null | undefined) =>
+    u && u.startsWith("data:") && u.length > 200_000 ? null : (u ?? null);
+  out = {
+    ...out,
+    sound: {
+      ...out.sound,
+      bgmUrl: stripAudio(out.sound?.bgmUrl),
+      winnerSfxUrl: stripAudio(out.sound?.winnerSfxUrl),
+      spinSfxUrl: stripAudio(out.sound?.spinSfxUrl),
+    },
+  };
   // Strip large data-URL images (logos/ornaments) from local cache.
   const stripImg = (u: string | null | undefined) =>
     u && u.startsWith("data:") && u.length > 200_000 ? null : (u ?? null);
