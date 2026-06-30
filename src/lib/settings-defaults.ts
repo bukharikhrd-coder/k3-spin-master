@@ -146,6 +146,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   ],
   showOrnamentsInFullscreen: false,
   showHeaderInFullscreen: false,
+  showHeaderControlsInFullscreen: false,
   animationSpeed: "normal",
   reducedMotion: false,
   currentRound: 1,
