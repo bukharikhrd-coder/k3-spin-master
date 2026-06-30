@@ -81,16 +81,6 @@ function Home() {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, [isFullscreen, settings.showHeaderInFullscreen]);
-        if (w < 640) setWheelSize(Math.min(w - 32, 360));
-        else if (w < 1024) setWheelSize(480);
-        else if (w < 1536) setWheelSize(560);
-        else setWheelSize(680);
-      }
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [isFullscreen]);
 
   // Fullscreen tracking
   useEffect(() => {
