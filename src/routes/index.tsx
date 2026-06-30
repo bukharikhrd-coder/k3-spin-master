@@ -64,12 +64,12 @@ function Home() {
       const w = window.innerWidth;
       const h = window.innerHeight;
       if (isFullscreen) {
-        // Fit wheel within viewport: leave space for title (~22vh) and side panel on lg.
-        const reservedV = h * 0.28;
-        const reservedH = w >= 1024 ? 400 : 32; // side panel + gap
+        // Tighter reserves: title ~14vh, header (if shown) ~8vh, side panel ~320px on lg.
+        const reservedV = h * (settings.showHeaderInFullscreen ? 0.22 : 0.16);
+        const reservedH = w >= 1024 ? 360 : 24;
         const maxByH = h - reservedV;
         const maxByW = w - reservedH;
-        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 820)));
+        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 900)));
       } else {
         if (w < 640) setWheelSize(Math.min(w - 32, 360));
         else if (w < 1024) setWheelSize(480);
@@ -80,7 +80,7 @@ function Home() {
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, [isFullscreen]);
+  }, [isFullscreen, settings.showHeaderInFullscreen]);
 
   // Fullscreen tracking
   useEffect(() => {
@@ -188,9 +188,9 @@ function Home() {
         />
       )}
 
-      {/* Top bar — hidden in fullscreen / presentation mode */}
+      {/* Top bar — hidden in fullscreen unless explicitly enabled */}
       {(!isFullscreen || settings.showHeaderInFullscreen) && (
-        <header className="relative z-10 mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:px-8">
+        <header className={`relative z-10 mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 md:px-8 ${isFullscreen ? "py-2" : "py-5"}`}>
           <div className="flex items-center gap-3">
             {settings.logos.company.url ? (
               <img src={settings.logos.company.url} alt="" style={{ height: settings.logos.company.size, opacity: settings.logos.company.opacity / 100 }} />
@@ -202,33 +202,35 @@ function Home() {
               <div className="font-display text-lg font-bold text-foreground whitespace-pre-line">{t("eventName")}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden text-right md:block" suppressHydrationWarning>
-              <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{dateStr}</div>
-              <div className="font-mono text-base font-semibold text-foreground">{timeStr}</div>
+          {(!isFullscreen || settings.showHeaderControlsInFullscreen) && (
+            <div className="flex items-center gap-2">
+              <div className="hidden text-right md:block" suppressHydrationWarning>
+                <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{dateStr}</div>
+                <div className="font-mono text-base font-semibold text-foreground">{timeStr}</div>
+              </div>
+              <button
+                onClick={() => useSettings.getState().setSettings((s) => ({ ...s, sound: { ...s.sound, muted: !s.sound.muted } }))}
+                className="glass inline-flex items-center gap-2 rounded-full p-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
+                title={settings.sound.muted ? "Unmute" : "Mute"}
+              >
+                {settings.sound.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                className="glass inline-flex items-center gap-2 rounded-full p-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
+                title="Fullscreen / Presentation Mode"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+              <Link
+                to="/admin"
+                className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
+              >
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline whitespace-pre-line">{t("btn_admin")}</span>
+              </Link>
             </div>
-            <button
-              onClick={() => useSettings.getState().setSettings((s) => ({ ...s, sound: { ...s.sound, muted: !s.sound.muted } }))}
-              className="glass inline-flex items-center gap-2 rounded-full p-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
-              title={settings.sound.muted ? "Unmute" : "Mute"}
-            >
-              {settings.sound.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="glass inline-flex items-center gap-2 rounded-full p-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
-              title="Fullscreen / Presentation Mode"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </button>
-            <Link
-              to="/admin"
-              className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-white/10"
-            >
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline whitespace-pre-line">{t("btn_admin")}</span>
-            </Link>
-          </div>
+          )}
         </header>
       )}
 
@@ -267,7 +269,7 @@ function Home() {
       </section>
 
       {/* Wheel + controls */}
-      <section className={`relative z-10 mx-auto grid max-w-[1800px] grid-cols-1 px-4 md:px-8 lg:grid-cols-[1fr_360px] ${isFullscreen ? "mt-2 gap-4 pb-2 flex-1 min-h-0" : "mt-8 gap-8 pb-16"}`}>
+      <section className={`relative z-10 mx-auto grid max-w-[1800px] grid-cols-1 px-4 md:px-8 ${isFullscreen ? "lg:grid-cols-[1fr_300px] mt-1 gap-3 pb-2 flex-1 min-h-0" : "lg:grid-cols-[1fr_360px] mt-8 gap-8 pb-16"}`}>
         <div className="flex flex-col items-center justify-center">
           {participants.length === 0 ? (
             <div className="glass-strong rounded-3xl p-10 text-center max-w-lg">
@@ -288,7 +290,7 @@ function Home() {
         </div>
 
         {/* Side panel */}
-        <aside className="glass-strong flex flex-col gap-5 rounded-3xl p-6">
+        <aside className={`glass-strong flex flex-col rounded-3xl ${isFullscreen ? "gap-3 p-4 justify-center" : "gap-5 p-6"}`}>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted-foreground whitespace-pre-line">
               {t("winners_per_round")}
@@ -313,7 +315,7 @@ function Home() {
           <button
             disabled={spinning || remaining.length === 0}
             onClick={handleSpin}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--safety-yellow)] via-[#ffb300] to-[var(--safety-orange)] py-5 font-display text-2xl font-extrabold uppercase tracking-widest text-black shadow-[0_0_30px_rgba(255,193,7,0.6)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--safety-yellow)] via-[#ffb300] to-[var(--safety-orange)] font-display font-extrabold uppercase tracking-widest text-black shadow-[0_0_30px_rgba(255,193,7,0.6)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${isFullscreen ? "py-3 text-xl" : "py-5 text-2xl"}`}
           >
             <span className="relative z-10 whitespace-pre-line">{spinning ? t("spinning") : t("btn_spin")}</span>
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

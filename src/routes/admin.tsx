@@ -167,8 +167,20 @@ function AdminPage() {
                 onChange={(e) => setSettings((s) => ({ ...s, showHeaderInFullscreen: e.target.checked }))}
                 className="h-4 w-4 accent-[var(--safety-yellow)]"
               />
-              <span className="text-sm font-semibold">Tampilkan header (logo perusahaan & jam) saat mode Fullscreen</span>
+              <span className="text-sm font-semibold">Tampilkan header (logo perusahaan) saat mode Fullscreen</span>
               <span className="text-xs text-muted-foreground">(default: tersembunyi)</span>
+            </label>
+
+            <label className={`flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 px-4 py-3 hover:bg-white/10 ${!settings.showHeaderInFullscreen ? "opacity-50" : ""}`}>
+              <input
+                type="checkbox"
+                disabled={!settings.showHeaderInFullscreen}
+                checked={!!settings.showHeaderControlsInFullscreen}
+                onChange={(e) => setSettings((s) => ({ ...s, showHeaderControlsInFullscreen: e.target.checked }))}
+                className="h-4 w-4 accent-[var(--safety-yellow)]"
+              />
+              <span className="text-sm font-semibold">Tampilkan jam &amp; tombol kontrol (mute / fullscreen / admin) di header fullscreen</span>
+              <span className="text-xs text-muted-foreground">(default: hanya logo perusahaan)</span>
             </label>
 
             <div>
