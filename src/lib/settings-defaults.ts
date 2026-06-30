@@ -1,5 +1,6 @@
 import { DEFAULT_TEXTS, type LangMode, type TextKey } from "./i18n";
 import bgmAsset from "@/assets/grand-ceremony-overture.mp3.asset.json";
+import winnerSfxAsset from "@/assets/winner-fanfare.mp3.asset.json";
 
 export type WinnerDisplayMode =
   | "number"
@@ -130,7 +131,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     bgmUrl: bgmAsset.url,
     spinSfxEnabled: true,
     winnerSfxEnabled: true,
-    winnerSfxUrl: null,
+    winnerSfxUrl: winnerSfxAsset.url,
     spinSfxUrl: null,
   },
   decorations: {
