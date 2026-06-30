@@ -64,13 +64,23 @@ function Home() {
       const w = window.innerWidth;
       const h = window.innerHeight;
       if (isFullscreen) {
-        // Fit wheel within viewport: leave space for title (~22vh) and side panel on lg.
-        const reservedV = h * 0.28;
-        const reservedH = w >= 1024 ? 400 : 32; // side panel + gap
+        // Tighter reserves: title ~14vh, header (if shown) ~8vh, side panel ~320px on lg.
+        const reservedV = h * (settings.showHeaderInFullscreen ? 0.22 : 0.16);
+        const reservedH = w >= 1024 ? 360 : 24;
         const maxByH = h - reservedV;
         const maxByW = w - reservedH;
-        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 820)));
+        setWheelSize(Math.max(280, Math.min(maxByH, maxByW, 900)));
       } else {
+        if (w < 640) setWheelSize(Math.min(w - 32, 360));
+        else if (w < 1024) setWheelSize(480);
+        else if (w < 1536) setWheelSize(560);
+        else setWheelSize(680);
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [isFullscreen, settings.showHeaderInFullscreen]);
         if (w < 640) setWheelSize(Math.min(w - 32, 360));
         else if (w < 1024) setWheelSize(480);
         else if (w < 1536) setWheelSize(560);
