@@ -1,5 +1,6 @@
 import { DEFAULT_TEXTS, type LangMode, type TextKey } from "./i18n";
 import bgmAsset from "@/assets/grand-ceremony-overture.mp3.asset.json";
+import winnerSfxAsset from "@/assets/winner-fanfare.mp3.asset.json";
 
 export type WinnerDisplayMode =
   | "number"
