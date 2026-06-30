@@ -84,6 +84,8 @@ export interface AppSettings {
   showOrnamentsInFullscreen: boolean;
   /** When true the top header (logo + clock + buttons) also shows in fullscreen presentation mode. */
   showHeaderInFullscreen: boolean;
+  /** When true the right-side header controls (clock, mute, fullscreen, admin) show in fullscreen. Default false = logo only. */
+  showHeaderControlsInFullscreen: boolean;
   animationSpeed: "slow" | "normal" | "fast";
   reducedMotion: boolean;
   currentRound: number;
