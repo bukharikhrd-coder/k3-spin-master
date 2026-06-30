@@ -290,7 +290,7 @@ function Home() {
         </div>
 
         {/* Side panel */}
-        <aside className="glass-strong flex flex-col gap-5 rounded-3xl p-6">
+        <aside className={`glass-strong flex flex-col rounded-3xl ${isFullscreen ? "gap-3 p-4 justify-center" : "gap-5 p-6"}`}>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted-foreground whitespace-pre-line">
               {t("winners_per_round")}
