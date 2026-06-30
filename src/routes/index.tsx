@@ -315,7 +315,7 @@ function Home() {
           <button
             disabled={spinning || remaining.length === 0}
             onClick={handleSpin}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--safety-yellow)] via-[#ffb300] to-[var(--safety-orange)] py-5 font-display text-2xl font-extrabold uppercase tracking-widest text-black shadow-[0_0_30px_rgba(255,193,7,0.6)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--safety-yellow)] via-[#ffb300] to-[var(--safety-orange)] font-display font-extrabold uppercase tracking-widest text-black shadow-[0_0_30px_rgba(255,193,7,0.6)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${isFullscreen ? "py-3 text-xl" : "py-5 text-2xl"}`}
           >
             <span className="relative z-10 whitespace-pre-line">{spinning ? t("spinning") : t("btn_spin")}</span>
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
