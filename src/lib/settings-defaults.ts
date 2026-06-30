@@ -131,7 +131,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     bgmUrl: bgmAsset.url,
     spinSfxEnabled: true,
     winnerSfxEnabled: true,
-    winnerSfxUrl: null,
+    winnerSfxUrl: winnerSfxAsset.url,
     spinSfxUrl: null,
   },
   decorations: {
