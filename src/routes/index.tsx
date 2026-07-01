@@ -293,13 +293,20 @@ function Home() {
               </Link>
             </div>
           ) : (
-            <SpinningWheel
-              ref={wheelRef}
-              participants={remaining}
-              size={wheelSize}
-              showNumbersOnly={settings.wheel.showNumbersOnly}
-              colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
-            />
+            <motion.div
+              key={remaining.length}
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <SpinningWheel
+                ref={wheelRef}
+                participants={remaining}
+                size={wheelSize}
+                showNumbersOnly={settings.wheel.showNumbersOnly}
+                colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
+              />
+            </motion.div>
           )}
         </div>
 
