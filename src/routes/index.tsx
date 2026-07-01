@@ -281,7 +281,7 @@ function Home() {
           ) : (
             <SpinningWheel
               ref={wheelRef}
-              participants={participants}
+              participants={remaining}
               size={wheelSize}
               showNumbersOnly={settings.wheel.showNumbersOnly}
               colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
