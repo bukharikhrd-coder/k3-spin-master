@@ -121,6 +121,76 @@ export function SafetyOrnaments({ settings, compact = false }: { settings: AppSe
         </>
       )}
 
+      {/* Extra fullscreen fillers — occupy the empty side columns around the wheel */}
+      {compact && (
+        <>
+          {/* Upper-left stacked gear */}
+          <motion.div
+            className="absolute left-[3%] top-[22%]"
+            style={{ width: base * 1.1, height: base * 1.1 }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+          >
+            <Gear color="#0B5ED7" opacity={0.22} />
+          </motion.div>
+          {/* Upper-right shield accent */}
+          <motion.div
+            className="absolute right-[4%] top-[26%]"
+            style={{ width: base * 1.1, height: base * 1.1 }}
+            animate={{ y: [0, -10, 0], rotate: [-3, 3, -3] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Shield />
+          </motion.div>
+          {/* Bottom-left mini trophy */}
+          <motion.div
+            className="absolute left-[10%] bottom-[8%]"
+            style={{ width: base * 1.0, height: base * 1.0, filter: "drop-shadow(0 0 14px rgba(255,193,7,0.55))" }}
+            animate={{ y: [0, -10, 0], rotate: [-5, 5, -5], scale: [1, 1.06, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Trophy />
+          </motion.div>
+          {/* Bottom-right hard hat */}
+          <motion.div
+            className="absolute right-[10%] bottom-[10%]"
+            style={{ width: base * 1.0, height: base * 0.9 }}
+            animate={{ rotate: [-6, 6, -6], y: [0, -6, 0] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <HardHat />
+          </motion.div>
+          {/* Bottom-center hazard stripe bar */}
+          <motion.div
+            className="absolute left-1/2 -translate-x-1/2 bottom-2"
+            style={{ width: "40vw", height: 14, opacity: 0.35 }}
+            animate={{ opacity: [0.25, 0.5, 0.25] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <HazardStripe />
+          </motion.div>
+          {/* Extra floating sparkles for atmosphere */}
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <motion.div
+              key={`fs-spark-${i}`}
+              className="absolute"
+              style={{
+                left: `${5 + i * 15}%`,
+                top: `${40 + (i % 3) * 15}%`,
+                width: 12,
+                height: 12,
+              }}
+              animate={{ opacity: [0.15, 0.9, 0.15], scale: [0.7, 1.3, 0.7] }}
+              transition={{ duration: 2.6 + i * 0.3, repeat: Infinity, delay: i * 0.25 }}
+            >
+              <Spark />
+            </motion.div>
+          ))}
+        </>
+      )}
+
+
+
       {/* Uploaded ornaments — each gently floats/rotates so they don't feel stiff */}
       {settings.ornaments
         ?.filter((o) => o.enabled && o.url)
