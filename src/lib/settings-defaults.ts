@@ -145,7 +145,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { id: "orn3", label: "Ornamen 3", url: null, position: "bl", size: 120, opacity: 100, enabled: true },
     { id: "orn4", label: "Ornamen 4", url: null, position: "br", size: 120, opacity: 100, enabled: true },
   ],
-  showOrnamentsInFullscreen: false,
+  showOrnamentsInFullscreen: true,
   showHeaderInFullscreen: false,
   showHeaderControlsInFullscreen: false,
   animationSpeed: "normal",
