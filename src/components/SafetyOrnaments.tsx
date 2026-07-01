@@ -330,3 +330,17 @@ function Spark() {
     </svg>
   );
 }
+
+function HazardStripe() {
+  return (
+    <svg viewBox="0 0 200 14" preserveAspectRatio="none" width="100%" height="100%">
+      <defs>
+        <pattern id="hz" width="16" height="14" patternUnits="userSpaceOnUse" patternTransform="skewX(-30)">
+          <rect width="8" height="14" fill="#FFC107" />
+          <rect x="8" width="8" height="14" fill="#111" />
+        </pattern>
+      </defs>
+      <rect width="200" height="14" fill="url(#hz)" rx="3" />
+    </svg>
+  );
+}
