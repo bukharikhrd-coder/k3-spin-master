@@ -352,7 +352,7 @@ function Home() {
         winners={revealed}
         mode={settings.wheel.displayMode}
         open={revealOpen}
-        onClose={() => setRevealOpen(false)}
+        onClose={() => { setRevealOpen(false); void commitPendingWinners(); }}
         titleText={t("winners_title")}
         congratsText={t("congrats")}
         closeText={t("btn_close")}
