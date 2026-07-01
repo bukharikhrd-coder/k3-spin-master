@@ -131,6 +131,8 @@ function Home() {
   const remaining = useMemo(() => participants.filter((p) => !p.has_won), [participants]);
   const wonCount = participants.length - remaining.length;
 
+  const pendingWinnerIdsRef = useRef<string[]>([]);
+
   async function handleSpin() {
     if (spinning || remaining.length === 0) return;
     const winners = pickWinners(remaining, Math.min(settings.wheel.winnersPerRound, remaining.length));
@@ -148,14 +150,9 @@ function Home() {
       : () => {};
     await wheelRef.current?.spinTo(winners.map((w) => w.id), settings.wheel.spinDurationSec);
     stopTicks();
-    const ids = winners.map((w) => w.id);
-    await supabase.from("participants").update({ has_won: true }).in("id", ids);
-    await supabase.from("draw_history").insert({
-      round: settings.currentRound,
-      winners: winners as any,
-      operator: settings.operator,
-    });
-    useSettings.getState().setSettings((s) => ({ ...s, currentRound: s.currentRound + 1 }));
+    // Reveal FIRST — the pointer still sits on winners[0] because we
+    // haven't marked them as won yet. That guarantees the number under the
+    // pointer matches the winners list shown to the audience.
     setRevealed(winners);
     setRevealOpen(true);
     if (settings.sound.winnerSfxEnabled) {
@@ -163,6 +160,23 @@ function Home() {
     }
     fireCelebration();
     setSpinning(false);
+    // Log history now; only flip has_won when the operator closes the reveal,
+    // so the wheel animates the winners out at that moment (feels live).
+    void supabase.from("draw_history").insert({
+      round: settings.currentRound,
+      winners: winners as any,
+      operator: settings.operator,
+    });
+    useSettings.getState().setSettings((s) => ({ ...s, currentRound: s.currentRound + 1 }));
+    pendingWinnerIdsRef.current = winners.map((w) => w.id);
+  }
+
+  async function commitPendingWinners() {
+    const ids = pendingWinnerIdsRef.current;
+    if (ids.length === 0) return;
+    pendingWinnerIdsRef.current = [];
+    await supabase.from("participants").update({ has_won: true }).in("id", ids);
+    void useParticipants.getState().init();
   }
 
   // Date/time strings — only when `now` is set (post-mount) to avoid SSR mismatch.
@@ -279,13 +293,20 @@ function Home() {
               </Link>
             </div>
           ) : (
-            <SpinningWheel
-              ref={wheelRef}
-              participants={participants}
-              size={wheelSize}
-              showNumbersOnly={settings.wheel.showNumbersOnly}
-              colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
-            />
+            <motion.div
+              key={remaining.length}
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <SpinningWheel
+                ref={wheelRef}
+                participants={remaining}
+                size={wheelSize}
+                showNumbersOnly={settings.wheel.showNumbersOnly}
+                colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
+              />
+            </motion.div>
           )}
         </div>
 
@@ -331,7 +352,7 @@ function Home() {
         winners={revealed}
         mode={settings.wheel.displayMode}
         open={revealOpen}
-        onClose={() => setRevealOpen(false)}
+        onClose={() => { setRevealOpen(false); void commitPendingWinners(); }}
         titleText={t("winners_title")}
         congratsText={t("congrats")}
         closeText={t("btn_close")}
