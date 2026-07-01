@@ -9,7 +9,9 @@ import type { AppSettings, OrnamentPosition } from "@/lib/settings-defaults";
  */
 export function SafetyOrnaments({ settings, compact = false }: { settings: AppSettings; compact?: boolean }) {
   const d = settings.decorations;
-  const scale = compact ? 0.6 : 1;
+  // In fullscreen (compact) we actually want LARGER, MORE ornaments to fill
+  // the empty side-columns around the wheel — not smaller ones.
+  const scale = compact ? 1.15 : 1;
   const base = 96 * scale;
 
   return (
