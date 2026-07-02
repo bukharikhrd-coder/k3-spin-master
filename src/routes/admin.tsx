@@ -366,44 +366,6 @@ function AdminPage() {
                 <option value="number_name_photo">Number + Name + Photo</option>
               </select>
             </Field>
-
-            <div className="pt-2 border-t border-white/10">
-              <h3 className="font-display text-lg font-bold mb-1">Gambar tengah roda</h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                Gambar akan di-crop menjadi lingkaran di tengah roda spin. Kosongkan untuk memakai logo perusahaan secara otomatis.
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="h-20 w-20 rounded-full bg-white/10 border border-white/15 overflow-hidden flex items-center justify-center">
-                  {(settings.wheel.centerImageUrl ?? settings.logos.company.url) ? (
-                    <img src={(settings.wheel.centerImageUrl ?? settings.logos.company.url) as string} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Kosong</span>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <label className="inline-flex items-center gap-2 cursor-pointer rounded-lg bg-[var(--safety-yellow)] px-4 py-2 font-semibold text-black hover:brightness-110">
-                    <Upload className="h-4 w-4" /> Upload gambar
-                    <input type="file" accept="image/*" className="hidden"
-                      onChange={async (e) => {
-                        const f = e.target.files?.[0]; e.currentTarget.value = "";
-                        if (!f) return;
-                        const url = await fileToDataUrl(f, 3);
-                        if (url) setSettings((s) => ({ ...s, wheel: { ...s.wheel, centerImageUrl: url } }));
-                      }}
-                    />
-                  </label>
-                  {settings.wheel.centerImageUrl && (
-                    <button
-                      onClick={() => setSettings((s) => ({ ...s, wheel: { ...s.wheel, centerImageUrl: null } }))}
-                      className="rounded-lg bg-white/10 px-4 py-2 font-semibold hover:bg-white/20"
-                    >
-                      Pakai logo perusahaan
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
             <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-[var(--safety-yellow)] px-5 py-2 font-semibold text-black hover:brightness-110">
               <Eye className="h-4 w-4" /> View live draw
             </Link>
