@@ -10,6 +10,7 @@ interface Props {
   size?: number;
   showNumbersOnly?: boolean;
   colors?: { primary: string; accent: string; secondary: string };
+  centerImageUrl?: string | null;
 }
 
 /**
@@ -19,13 +20,25 @@ interface Props {
  * - Equal-angle segments, alternating premium colors, auto-sized labels.
  */
 export const SpinningWheel = forwardRef<SpinningWheelHandle, Props>(function SpinningWheel(
-  { participants, size = 720, showNumbersOnly, colors }, ref,
+  { participants, size = 720, showNumbersOnly, colors, centerImageUrl }, ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef = useRef(0);                  // current rotation, radians
   const animatingRef = useRef(false);
+  const centerImgRef = useRef<HTMLImageElement | null>(null);
 
   const palette = colors ?? { primary: "#0B5ED7", accent: "#FFC107", secondary: "#FF7A00" };
+
+  // Load center image whenever the URL changes; redraw when it becomes available.
+  useEffect(() => {
+    if (!centerImageUrl) { centerImgRef.current = null; return; }
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => { centerImgRef.current = img; draw(angleRef.current); };
+    img.onerror = () => { centerImgRef.current = null; };
+    img.src = centerImageUrl;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centerImageUrl]);
 
   const draw = (angle: number) => {
     const canvas = canvasRef.current;
@@ -125,19 +138,41 @@ export const SpinningWheel = forwardRef<SpinningWheelHandle, Props>(function Spi
 
     // center hub
     ctx.save();
-    const hubGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, innerR + 8);
+    const img = centerImgRef.current;
+    // When a logo image is provided, use a larger hub so it reads well from the audience.
+    const hubR = img ? outerR * 0.24 : innerR;
+    const ringR = hubR + 10;
+    const hubGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, ringR);
     hubGrad.addColorStop(0, "#f5f7fa");
     hubGrad.addColorStop(0.6, "#9aa3b5");
     hubGrad.addColorStop(1, "#2a2f3d");
     ctx.fillStyle = hubGrad;
-    ctx.beginPath(); ctx.arc(cx, cy, innerR + 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = palette.accent;
-    ctx.beginPath(); ctx.arc(cx, cy, innerR, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#1a1f2e";
-    ctx.font = "900 22px Oswald, Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("K3", cx, cy);
+    ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2); ctx.fill();
+    if (img) {
+      // White backdrop so transparent PNGs read clearly.
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.fill();
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.clip();
+      // Cover-fit the image inside the circle.
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+      if (iw > 0 && ih > 0) {
+        const scale = Math.max((hubR * 2) / iw, (hubR * 2) / ih);
+        const dw = iw * scale;
+        const dh = ih * scale;
+        ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+      }
+      ctx.restore();
+    } else {
+      ctx.fillStyle = palette.accent;
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#1a1f2e";
+      ctx.font = "900 22px Oswald, Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("K3", cx, cy);
+    }
     ctx.restore();
 
     // inner highlight

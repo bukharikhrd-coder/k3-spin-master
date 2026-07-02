@@ -156,7 +156,25 @@ function Home() {
     setRevealed(winners);
     setRevealOpen(true);
     if (settings.sound.winnerSfxEnabled) {
-      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
+      const { ended } = playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
+      // Duck BGM while the winner fanfare plays, then restore.
+      const bgm = audioRef.current;
+      if (bgm && !bgm.paused) {
+        const prevVol = bgm.volume;
+        bgm.volume = Math.min(prevVol, 0.08);
+        void ended.then(() => {
+          if (!bgm) return;
+          // Smoothly restore over ~500ms.
+          const steps = 12;
+          let i = 0;
+          const target = Math.max(0, Math.min(1, (settings.sound.master / 100) * (settings.sound.music / 100)));
+          const iv = setInterval(() => {
+            i++;
+            bgm.volume = bgm.volume + (target - bgm.volume) * (i / steps);
+            if (i >= steps) { bgm.volume = target; clearInterval(iv); }
+          }, 40);
+        });
+      }
     }
     fireCelebration();
     setSpinning(false);
@@ -294,10 +312,11 @@ function Home() {
             </div>
           ) : (
             <motion.div
-              key={remaining.length}
-              initial={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{ width: wheelSize, height: wheelSize }}
+              className="transition-[width,height] duration-300"
             >
               <SpinningWheel
                 ref={wheelRef}
@@ -305,6 +324,7 @@ function Home() {
                 size={wheelSize}
                 showNumbersOnly={settings.wheel.showNumbersOnly}
                 colors={{ primary: settings.theme.primary, accent: settings.theme.accent, secondary: settings.theme.secondary }}
+                centerImageUrl={settings.wheel.centerImageUrl ?? settings.logos.company.url}
               />
             </motion.div>
           )}
