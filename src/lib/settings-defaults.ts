@@ -65,6 +65,8 @@ export interface AppSettings {
     displayMode: WinnerDisplayMode;
     showNumbersOnly: boolean;
     numbersOnlyThreshold: number;
+    /** Custom image shown in the center hub of the wheel. null = fall back to company logo. */
+    centerImageUrl: string | null;
   };
   sound: {
     muted: boolean;
@@ -122,6 +124,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     displayMode: "number_name",
     showNumbersOnly: true,
     numbersOnlyThreshold: 60,
+    centerImageUrl: null,
   },
   sound: {
     muted: false,
