@@ -83,20 +83,30 @@ export function startSpinSfx(opts: { durationSec: number; master: number; effect
   return () => { stopped = true; };
 }
 
-/** Triumphant fanfare on a winner reveal. Uses uploaded URL if provided, else synth. */
-export function playWinnerSfx(opts: { master: number; effects: number; muted: boolean; url?: string | null }) {
+/**
+ * Triumphant fanfare on a winner reveal. Uses uploaded URL if provided, else synth.
+ * Returns `{ ended }` — a promise that resolves when the sound finishes, so the
+ * caller can duck/pause background music for exactly that window.
+ */
+export function playWinnerSfx(opts: { master: number; effects: number; muted: boolean; url?: string | null }): { ended: Promise<void> } {
   if (opts.url) {
     const v = effVolume(opts.master, opts.effects, opts.muted);
-    if (v <= 0) return;
+    if (v <= 0) return { ended: Promise.resolve() };
     const a = new Audio(opts.url);
     a.volume = v;
+    const ended = new Promise<void>((resolve) => {
+      const done = () => resolve();
+      a.addEventListener("ended", done, { once: true });
+      a.addEventListener("error", done, { once: true });
+      setTimeout(done, 20_000); // safety
+    });
     a.play().catch(() => {});
-    return;
+    return { ended };
   }
   const c = ctx();
-  if (!c) return;
+  if (!c) return { ended: Promise.resolve() };
   const vol = effVolume(opts.master, opts.effects, opts.muted);
-  if (vol <= 0) return;
+  if (vol <= 0) return { ended: Promise.resolve() };
   if (c.state === "suspended") void c.resume();
 
 
@@ -132,4 +142,6 @@ export function playWinnerSfx(opts: { master: number; effects: number; muted: bo
   shimmer.connect(sg).connect(c.destination);
   shimmer.start(t0 + 0.5);
   shimmer.stop(t0 + 1.25);
+  const ended = new Promise<void>((resolve) => setTimeout(resolve, 1300));
+  return { ended };
 }
