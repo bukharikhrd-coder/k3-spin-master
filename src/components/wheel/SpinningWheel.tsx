@@ -138,19 +138,41 @@ export const SpinningWheel = forwardRef<SpinningWheelHandle, Props>(function Spi
 
     // center hub
     ctx.save();
-    const hubGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, innerR + 8);
+    const img = centerImgRef.current;
+    // When a logo image is provided, use a larger hub so it reads well from the audience.
+    const hubR = img ? outerR * 0.24 : innerR;
+    const ringR = hubR + 10;
+    const hubGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, ringR);
     hubGrad.addColorStop(0, "#f5f7fa");
     hubGrad.addColorStop(0.6, "#9aa3b5");
     hubGrad.addColorStop(1, "#2a2f3d");
     ctx.fillStyle = hubGrad;
-    ctx.beginPath(); ctx.arc(cx, cy, innerR + 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = palette.accent;
-    ctx.beginPath(); ctx.arc(cx, cy, innerR, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#1a1f2e";
-    ctx.font = "900 22px Oswald, Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("K3", cx, cy);
+    ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2); ctx.fill();
+    if (img) {
+      // White backdrop so transparent PNGs read clearly.
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.fill();
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.clip();
+      // Cover-fit the image inside the circle.
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+      if (iw > 0 && ih > 0) {
+        const scale = Math.max((hubR * 2) / iw, (hubR * 2) / ih);
+        const dw = iw * scale;
+        const dh = ih * scale;
+        ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+      }
+      ctx.restore();
+    } else {
+      ctx.fillStyle = palette.accent;
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#1a1f2e";
+      ctx.font = "900 22px Oswald, Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("K3", cx, cy);
+    }
     ctx.restore();
 
     // inner highlight
