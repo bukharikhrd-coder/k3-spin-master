@@ -124,6 +124,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     displayMode: "number_name",
     showNumbersOnly: true,
     numbersOnlyThreshold: 60,
+    centerImageUrl: null,
   },
   sound: {
     muted: false,
