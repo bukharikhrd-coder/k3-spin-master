@@ -156,7 +156,25 @@ function Home() {
     setRevealed(winners);
     setRevealOpen(true);
     if (settings.sound.winnerSfxEnabled) {
-      playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
+      const { ended } = playWinnerSfx({ master: settings.sound.master, effects: settings.sound.effects, muted: settings.sound.muted, url: settings.sound.winnerSfxUrl });
+      // Duck BGM while the winner fanfare plays, then restore.
+      const bgm = audioRef.current;
+      if (bgm && !bgm.paused) {
+        const prevVol = bgm.volume;
+        bgm.volume = Math.min(prevVol, 0.08);
+        void ended.then(() => {
+          if (!bgm) return;
+          // Smoothly restore over ~500ms.
+          const steps = 12;
+          let i = 0;
+          const target = Math.max(0, Math.min(1, (settings.sound.master / 100) * (settings.sound.music / 100)));
+          const iv = setInterval(() => {
+            i++;
+            bgm.volume = bgm.volume + (target - bgm.volume) * (i / steps);
+            if (i >= steps) { bgm.volume = target; clearInterval(iv); }
+          }, 40);
+        });
+      }
     }
     fireCelebration();
     setSpinning(false);
