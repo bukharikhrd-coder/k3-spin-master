@@ -65,6 +65,8 @@ export interface AppSettings {
     displayMode: WinnerDisplayMode;
     showNumbersOnly: boolean;
     numbersOnlyThreshold: number;
+    /** Custom image shown in the center hub of the wheel. null = fall back to company logo. */
+    centerImageUrl: string | null;
   };
   sound: {
     muted: boolean;
