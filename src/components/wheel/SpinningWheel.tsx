@@ -20,13 +20,25 @@ interface Props {
  * - Equal-angle segments, alternating premium colors, auto-sized labels.
  */
 export const SpinningWheel = forwardRef<SpinningWheelHandle, Props>(function SpinningWheel(
-  { participants, size = 720, showNumbersOnly, colors }, ref,
+  { participants, size = 720, showNumbersOnly, colors, centerImageUrl }, ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef = useRef(0);                  // current rotation, radians
   const animatingRef = useRef(false);
+  const centerImgRef = useRef<HTMLImageElement | null>(null);
 
   const palette = colors ?? { primary: "#0B5ED7", accent: "#FFC107", secondary: "#FF7A00" };
+
+  // Load center image whenever the URL changes; redraw when it becomes available.
+  useEffect(() => {
+    if (!centerImageUrl) { centerImgRef.current = null; return; }
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => { centerImgRef.current = img; draw(angleRef.current); };
+    img.onerror = () => { centerImgRef.current = null; };
+    img.src = centerImageUrl;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centerImageUrl]);
 
   const draw = (angle: number) => {
     const canvas = canvasRef.current;
