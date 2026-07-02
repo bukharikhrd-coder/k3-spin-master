@@ -312,10 +312,11 @@ function Home() {
             </div>
           ) : (
             <motion.div
-              key={remaining.length}
-              initial={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{ width: wheelSize, height: wheelSize }}
+              className="transition-[width,height] duration-300"
             >
               <SpinningWheel
                 ref={wheelRef}
