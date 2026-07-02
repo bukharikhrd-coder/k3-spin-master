@@ -10,6 +10,7 @@ interface Props {
   size?: number;
   showNumbersOnly?: boolean;
   colors?: { primary: string; accent: string; secondary: string };
+  centerImageUrl?: string | null;
 }
 
 /**
